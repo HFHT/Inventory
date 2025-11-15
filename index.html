@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/habitat-inventory.png" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="apple-touch-icon" href="/habitat-inventory.png" />
+  <link rel="apple-touch-startup-image" href="habitat-inventory.png">
+  <link rel="apple-touch-icon" href="habitat-inventory.png" />
+  <!-- <link rel="apple-touch-icon-precomposed" sizes="128x128" href="habitat-inventory.png"> -->
+
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="shortcut icon" sizes="196x196" href="habitat-inventory.png">
+  <link rel="shortcut icon" sizes="128x128" href="habitat-inventory.png">
+
+  <!-- <meta name="theme-color" content="#000000" /> -->
+  <meta name="author" content="Habitat Tucson Inventory">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Habitat for Humanity Tucson Inventory">
+  <title>HFHT Inventory</title>
+</head>
+
+<body>
+  <div id="root">
+    <p>Your web browser does not support JavaScript. Check your browser settings or update your web browser.</p>
+    <p>Do an internet (Google, Bing, etc) search for:</p>
+    <ul>
+      <li>finding and managing JavaScript Blocking in Browsers</li>
+    </ul>
+  </div>
+  <script>
+    if (typeof fetch === 'function') {
+      document.getElementById('root').innerHTML = 'Loading...'
+    } else {
+      document.getElementById('root').innerHTML = '<p>Your web browser is too old to use this application. Please upgrade your browser and try again.</p><p>Do an internet (Google, Bing, etc) search for:</p><ul><li>check if your browser version is up to date</li></ul>'
+      window.stop()
+    }
+  </script>
+  <script type="module" src="/src/main.tsx"></script>
+
+</body>
+
+</html>
