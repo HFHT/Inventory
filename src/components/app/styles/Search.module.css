@@ -1,0 +1,42 @@
+[data-mantine-color-scheme='light'] {
+    --search-bg: var(--mantine-color-gray-1)
+}
+[data-mantine-color-scheme='dark'] {
+    --search-bg: var(--mantine-color-dark-5)
+}
+.sBar {
+    display: flex;
+    cursor: pointer;
+    justify-content: start;
+    align-items: center;
+    border: calc(0.0625rem * var(--mantine-scale)) solid var(--mantine-color-default-border);
+    border-radius: 8px;
+    background-color: var(--search-bg);
+    flex-basis: unset;
+    /* width: 90%; */
+    /* height: 2rem; */
+  }
+  .sIcon {
+    padding: 0.3rem 1rem;
+    margin-top: 2px;
+    /* margin: 1rem; */
+  }
+  .sText {
+    padding: 0.3rem;
+    margin-bottom: 2px;
+  }
+  .sBtns {
+    margin-left: auto;
+  }
+  .sDropDown {
+    cursor: pointer;
+    padding-left: .5rem;
+  }
+  .sDropDown:hover {
+    background-color: var(--search-bg);
+    border-radius: 6px;
+
+  }
+  .sDropDownRow {
+    background-color: var(--search-bg);
+  }

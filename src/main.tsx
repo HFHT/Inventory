@@ -1,12 +1,13 @@
 import ReactDOM from 'react-dom/client';
-import App from './App';
-import { MantineProvider } from '@mantine/core';
+import { Button, MantineProvider } from '@mantine/core';
 import { theme } from './assets/theme';
 import { ErrorBoundary } from 'react-error-boundary';
-import { MsalProvider } from '@azure/msal-react';
+import { AuthenticatedTemplate, MsalProvider, UnauthenticatedTemplate } from '@azure/msal-react';
 import { PublicClientApplication, type Configuration } from '@azure/msal-browser';
 import { GenericErrorFallback } from './components/Fallbacks';
-import { CategoryProvider, DataProvider, MainProvider, SettingsProvider } from './context';
+import { App } from './App';
+import { AzureContextProvider } from './components/auth';
+import SignIn from './components/auth/SignIn';
 
 const configuration: Configuration = {
   auth: {
@@ -24,18 +25,28 @@ const configuration: Configuration = {
 const pca = new PublicClientApplication(configuration);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <MantineProvider theme={theme} forceColorScheme={window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}>
+  <MantineProvider
+    theme={theme}
+    forceColorScheme={window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}
+  >
     <ErrorBoundary FallbackComponent={GenericErrorFallback} onError={() => console.log('Top Level Error Boundary')}>
       <MsalProvider instance={pca}>
-        <SettingsProvider>
+        <AuthenticatedTemplate>
+          <AzureContextProvider >
+            {/* <SettingsProvider>
           <DataProvider>
             <MainProvider >
-              <CategoryProvider>
-                <App />
-              </CategoryProvider>
+              <CategoryProvider> */}
+            <App />
+            {/* </CategoryProvider>
             </MainProvider>
           </DataProvider>
-        </SettingsProvider>
+        </SettingsProvider> */}
+          </AzureContextProvider>
+        </AuthenticatedTemplate>
+        <UnauthenticatedTemplate>
+          <SignIn />
+        </UnauthenticatedTemplate>
       </MsalProvider>
     </ErrorBoundary>
   </MantineProvider>

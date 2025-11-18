@@ -7,13 +7,13 @@ The schema object includes default viewing information used by the Data View Res
 
 | Name            | Type                                                                   | Description                              |   |   |
 |-----------------|------------------------------------------------------------------------|------------------------------------------|---|---|
-| title           | string                                                                 | Display name                             |   |   |
+| title           | string                                                                 | Display label                             |   |   |
 | hide            | boolean                                                                | Do not display                           |   |   |
 | order           | number                                                                 | Display order                            |   |   |
 | type            | string \| number \| image \|<br>select \| boolean \| json              | Data type                                |   |   |
 | size            | number                                                                 | Size of the data                         |   |   |
 | isArray         | boolean                                                                | Treat data as an array                   |   |   |
-| default         | string \| number \| null \| undefined \| object                        | Default value for new entry              |   |   |
+| defaultValue    | string \| number \| null \| undefined \| object                        | Default value for new entry              |   |   |
 | required        | boolean                                                                | Required data element                    |   |   |
 | pattern         | regex string                                                           | allowed values                           |   |   |
 | filterPrimary   | boolean                                                                | This field is used as a primary filter   |   |   |

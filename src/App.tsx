@@ -1,34 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
+import '@mantine/dates/styles.css';
+import { Table } from "./components/TableOld/Table";
+import { getFromDB } from './services/database';
+import type { TableColumnHeader } from './components/TableOld/types';
+import { useEffect, useState } from 'react';
+import { Text } from '@mantine/core';
+import { AppLayout } from './layouts';
+import { InventoryPage } from './pages';
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+const getData = async (setter: any) => {
+  setter(await getFromDB('Construction', 'Inventory'))
 }
 
-export default App
+export function App() {
+  const [rows, setRows] = useState([])
+  // Sample table data
+  useEffect(() => {
+    getData(setRows)
+  }, [])
+
+
+  return (
+    <AppLayout>
+      <InventoryPage />
+    </AppLayout>
+  );
+  // if (rows.length === 0) return <></>
+  // return (
+  //   <Table data={{ columns, rows }} >
+  //     {(rowId) => rowId ? <TestChild rowId={rowId} /> : null}
+  //   </Table >
+  // );
+
+}
+
+function TestChild({ rowId }: { rowId: string | number | null }) {
+  return (
+    <Text>Here is the selected Row id: {rowId}</Text>
+  )
+}
