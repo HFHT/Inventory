@@ -1,5 +1,4 @@
-export function HomePage({ open }: { open: boolean }) {
-    if (!open) return <></>
+export function HomePage() {
     return (
         <div>HomePage</div>
     )

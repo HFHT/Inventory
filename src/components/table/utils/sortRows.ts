@@ -1,5 +1,5 @@
 import { getValueByAccessor } from ".";
-import type { TableRow } from "../types";
+import type { ViewerDbTypes } from "../../../types";
 
 /**
  * Sorts an array of table rows based on the specified column and sort direction.
@@ -7,10 +7,10 @@ import type { TableRow } from "../types";
  * It supports sorting by numbers, dates, and string values. 
  * If no valid sort column or direction are provided, it returns the rows without sorting.
  * 
- * @param {TableRow[]} rows - The array of table row objects to sort.
+ * @param {ViewerDbTypes} rows - The array of table row objects to sort.
  * @param {{ column: string | null; direction: "asc" | "desc" | null }} sort - 
  *   The sorting parameters, consisting of the column accessor and direction ('asc' or 'desc').
- * @returns {TableRow[]} A new array of table rows, sorted as specified.
+ * @returns {ViewerDbTypes} A new array of table rows, sorted as specified.
  * 
  * @example
  * ```
@@ -18,12 +18,12 @@ import type { TableRow } from "../types";
  * ```
  */
 export function sortRows(
-  rows: TableRow[],
+  rows: ViewerDbTypes,
   sort: { column: string | null; direction: "asc" | "desc" | null }
-): TableRow[] {
+): ViewerDbTypes {
   if (!sort.column || !sort.direction) return rows;
-
   const { column, direction } = sort;
+  console.log(column, direction)
   return [...rows].sort((a, b) => {
     const aValue = getValueByAccessor(a, column);
     const bValue = getValueByAccessor(b, column);
@@ -36,6 +36,7 @@ export function sortRows(
         ? aValue.getTime() - bValue.getTime()
         : bValue.getTime() - aValue.getTime();
     }
+    console.log(aValue,bValue)
     return direction === "asc"
       ? String(aValue).localeCompare(String(bValue))
       : String(bValue).localeCompare(String(aValue));

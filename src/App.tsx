@@ -1,29 +1,28 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
-import { Table } from "./components/TableOld/Table";
-import { getFromDB } from './services/database';
-import type { TableColumnHeader } from './components/TableOld/types';
-import { useEffect, useState } from 'react';
+// import { getFromDB } from './services/database';
+// import { useEffect, useState } from 'react';
 import { Text } from '@mantine/core';
 import { AppLayout } from './layouts';
-import { InventoryPage } from './pages';
+import PageManager from './components/app/PageManager';
+import { navStructure } from './layouts/navigation/NavStructure';
 
-const getData = async (setter: any) => {
-  setter(await getFromDB('Construction', 'Inventory'))
-}
+// const getData = async (setter: any) => {
+//   setter(await getFromDB('Construction', 'Inventory'))
+// }
 
 export function App() {
-  const [rows, setRows] = useState([])
-  // Sample table data
-  useEffect(() => {
-    getData(setRows)
-  }, [])
+  // const [rows, setRows] = useState([])
+  // // Sample table data
+  // useEffect(() => {
+  //   getData(setRows)
+  // }, [])
 
 
   return (
-    <AppLayout>
-      <InventoryPage />
+    <AppLayout navStructure={navStructure}>
+      <PageManager />
     </AppLayout>
   );
   // if (rows.length === 0) return <></>

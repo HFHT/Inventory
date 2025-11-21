@@ -1,5 +1,6 @@
+import type { ViewerDbTypes } from "../../../types";
 import { fuzzySearch, includesSearch, startsWithSearch } from "../../../utils/search";
-import type { TableColumnHeader, TableRow } from "../types";
+import type { TableColumnHeader } from "../types";
 
 /**
  * An object describing which columns should be filtered by which method.
@@ -18,16 +19,16 @@ export type FilterTypes = {
  * (fuzzy, exact match via 'startsWith', or inclusion) depending on column settings.
  * Returns a merged and deduplicated array of matching rows.
  *
- * @param {TableRow[]} rows - All rows in the table data.
+ * @param {ViewerDbTypes} rows - All rows in the table data.
  * @param {string | undefined} filterValue - The filter value input by the user.
  * @param {FilterTypes} filterTypes - The mapping of columns to filtering methods.
- * @returns {TableRow[]} Filtered and de-duplicated table rows.
+ * @returns {ViewerDbTypes} Filtered and de-duplicated table rows.
  */
 export function filterRowsByFilterType(
-  rows: TableRow[],
+  rows: ViewerDbTypes,
   filterValue: string | undefined,
   filterTypes: FilterTypes
-): TableRow[] {
+): ViewerDbTypes {
   if (!filterValue || !filterTypes) return rows;
   const fuzzyResult = fuzzySearch(
     rows,

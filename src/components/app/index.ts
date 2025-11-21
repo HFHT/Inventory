@@ -1,4 +1,5 @@
 export * from './Footer'
 export * from './Header'
+export * from './PageManager'
 export * from './ProfileAvatar'
 export * from './Search'

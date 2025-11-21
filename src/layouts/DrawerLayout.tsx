@@ -1,32 +1,30 @@
-import { useRef } from 'react';
+import { type ReactNode } from 'react';
 
-import { useInventoryStore } from '../stores';
-import { FormFields, SaveOrCancel, Title } from '../components/form';
+import { SaveOrCancel, Title } from '../components/form';
+import type { ViewerDbTypes } from '../types';
 
 
 /**
  * @param title Drawer title
  */
-export function DrawerFormLayout({ title }: { title: string }) {
-  const addItem = useInventoryStore((s) => s.addItem);
-  const closeDrawer = useInventoryStore((s) => s.closeDrawer);
+export function DrawerLayout({ title, data, onClose, children }: {
+  data: ViewerDbTypes;
+  title?: string;
+  onClose: () => void;
+  children?: ReactNode; // Drawer content
+}) {
 
-  // For this minimal example, hold value in a ref
-  const nameRef = useRef('');
 
   return (
     <>
-      <Title>{title}</Title>
-      <FormFields onChange={(val) => (nameRef.current = val)} />
+      {title && <Title>{title}</Title>}
       <SaveOrCancel
         onSave={() => {
-          if (nameRef.current.trim()) {
-            addItem({ id: Date.now(), name: nameRef.current });
-            nameRef.current = '';
-          }
+          console.log('save')
         }}
-        onCancel={closeDrawer}
+        onCancel={onClose}
       />
+      {children}
     </>
   );
 }

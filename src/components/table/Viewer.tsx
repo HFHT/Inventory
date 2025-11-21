@@ -5,7 +5,7 @@ import {
     IconSelector,
 } from "@tabler/icons-react";
 import type { JSX } from "react";
-import type { TableColumnHeader, TableRow } from "./types";
+import type { TableColumnHeader } from "./types";
 import { getValueByAccessor } from "./utils";
 import type { ViewerDbTypes } from "../../types";
 
@@ -14,7 +14,7 @@ import type { ViewerDbTypes } from "../../types";
  * 
  * @typedef {Object} TableViewProps
  * @property {TableColumnHeader[]} columns - The column headers for the table, each with accessor, label, and options.
- * @property {TableRow[]} rows - The table row data (already filtered and sorted).
+ * @property {ViewerDbTypes[]} rows - The table row data (already filtered and sorted).
  * @property {{ column: string | null, direction: "asc" | "desc" | null }} sort - Current sort column and direction.
  * @property {(accessor: string) => void} onSort - Callback to sort data by column accessor.
  * @property {(id: string | number) => void} onClick - Callback to handle the selection of a table row.

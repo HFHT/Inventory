@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { ViewerDbTypes } from "../../../types";
 
 // TypeScript types
 export type TableColumnHeader = {
@@ -19,17 +20,17 @@ export type TableColumnHeader = {
     validate?: () => void;
 };
 
-/**  
- * Table row type: string index keys, value is any  
- */
-export type TableRow = Record<string, any>;
+// /**  
+//  * Table row type: string index keys, value is any  
+//  */
+// export type TableRow = Record<string, any>;
 
 /**  
  * Table data for Table component  
  */
 export interface TableData {
     columns: TableColumnHeader[];
-    rows: TableRow[];
+    rows: ViewerDbTypes;
 }
 
 /**  

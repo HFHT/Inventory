@@ -1,21 +1,20 @@
-import { type JSX } from "react";
+import { type JSX, type ReactElement } from "react";
 import { create } from "zustand";
 import { HomePage } from "../pages";
 /**
  * Describes the navigation state.
  */
-export type NavigationType = {
-  page: JSX.Element;
-  filter: string | null;
-  key: string;
-};
+export type NavItem = 
+  | { label: string; key: string; page: ReactElement; children?: never }
+  | { label: string; key: string; page?: never; children: NavItem[] };
+
 
 /**
  * Zustand store interface for navigation.
  */
 export interface NavigationStore {
-  navigation: NavigationType;
-  setNavigation: (next: NavigationType | ((prev: NavigationType) => NavigationType)) => void;
+  navigation: NavItem;
+  setNavigation: (next: NavItem | ((prev: NavItem) => NavItem)) => void;
   navbarOpened: boolean;
   openNavbar: () => void;
   closeNavbar: () => void;
@@ -25,10 +24,10 @@ export interface NavigationStore {
 /**
  * The default navigation state.
  */
-const defaultNavigation: NavigationType = {
-  page: <HomePage open={true} />,
+const defaultNavigation: NavItem = {
+  page: <HomePage />,
   key: "Home",
-  filter: null,
+  label: "Home",
 };
 
 /**
@@ -52,12 +51,6 @@ export const useNavigationStore = create<NavigationStore>((set) => ({
   toggleNavbar: () => set((state) => ({ navbarOpened: !state.navbarOpened })),
 }));
 
-/**
- * Get only the navigation.filter value. Deprecated, use CategoryProvider instead.
- */
-export function useNavigationFilter(): string | null {
-  return useNavigationStore((state) => state.navigation.filter);
-}
 
 /**
  * Checks if the current navigation is for the given key.
@@ -65,5 +58,5 @@ export function useNavigationFilter(): string | null {
  * @param key The key to check.
  * @returns True if the navigation key matches the provided key.
  */
-export const isPage = (navigation: NavigationType, key: string): boolean =>
+export const isPage = (navigation: NavItem, key: string): boolean =>
   navigation.key === key;
