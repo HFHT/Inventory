@@ -1,0 +1,45 @@
+.header {
+    /* height: 56px; */
+    margin-bottom: 10px;
+    background-color: var(--mantine-color-body);
+    border-bottom: 1px solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  }
+  
+  .inner {
+    /* height: 56px; */
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+  
+  .link {
+    display: block;
+    cursor: pointer;
+    line-height: 1;
+    padding: 8px 12px;
+    border-radius: var(--mantine-radius-md);
+    text-decoration: none;
+    color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+    font-size: var(--mantine-font-size-sm);
+    font-weight: 500;
+  
+    @mixin hover {
+      background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
+    }
+  }
+  
+  .linkSelected {
+    composes: link;
+    background-color: light-dark(var(--mantine-color-blue-0), var(--mantine-color-blue-8));
+  }
+  .linkLabel {
+    margin-right: 5px;
+  }
+
+  .linkLeft {
+    margin-left: 5px;
+  }
+
+  .container {
+    padding-inline: unset;
+  }

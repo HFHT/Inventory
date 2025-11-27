@@ -6,6 +6,8 @@ export interface DataResourceConfig {
     id: string;
     /** The REST API base endpoint for CRUD operations. */
     apiUrl: string;
+    db: string;
+    col: string;
     /** Refresh rate in milliseconds. */
     refreshRate: number;
 }
@@ -24,6 +26,16 @@ export interface DataResource<T> {
     isMutating: boolean;
 }
 
+/** 
+ * Database API calls return this object.
+ */
+
+export interface DatabaseAPI {
+    data: any[];
+    error?: string;
+    result?: any[]
+}
+
 import { create } from "zustand";
 
 /**
@@ -33,6 +45,9 @@ type ResourcesStore = {
     resources: Record<string, DataResource<any>>;
     setResource: (id: string, resource: DataResource<any>) => void;
     removeResource: (id: string) => void;
+    isEditing: boolean;
+    setIsEditing: (editing: boolean) => void;
+    toggleIsEditing: () => void;
 };
 
 export const useDataResourcesStore = create<ResourcesStore>((set) => ({
@@ -46,15 +61,19 @@ export const useDataResourcesStore = create<ResourcesStore>((set) => ({
             const { [id]: _, ...rest } = state.resources;
             return { resources: rest };
         }),
+    isEditing: false,
+    setIsEditing: (editing: boolean) => set(() => ({ isEditing: editing })),
+    toggleIsEditing: () => set((state) => ({ isEditing: !state.isEditing }))
 }));
 
 import { useCallback } from "react";
+// import type { ViewerDbRowTypes } from "../types"; // Only needed for selectedRow
 
 /**
  * Fetch the resource data (Read)
  */
 async function fetchResource<T>(config: DataResourceConfig): Promise<T> {
-    const response = await fetch(config.apiUrl, {method: 'GET'});
+    const response = await fetch(`${config.apiUrl}?db=${config.db}&col=${config.col}`, { method: 'GET' });
     if (!response.ok) throw new Error("Fetch failed");
     return response.json();
 }
@@ -62,8 +81,7 @@ async function fetchResource<T>(config: DataResourceConfig): Promise<T> {
 //... Put/POST/DELETE functions omitted for brevity. Implement as needed.
 
 export function useDataResource() {
-    const { resources, setResource, removeResource } = useDataResourcesStore();
-
+    const { resources, setResource, removeResource, isEditing } = useDataResourcesStore();
     /**
      * Create a new data resource and start its refresh timer.
      */
@@ -73,6 +91,9 @@ export function useDataResource() {
         let intervalId: number | undefined;
 
         const load = async () => {
+            console.log('load', isEditing)
+            if (isEditing) return;
+
             setResource(config.id, {
                 config,
                 data: null,
@@ -82,12 +103,13 @@ export function useDataResource() {
                 intervalId,
             });
             try {
-                const data = await fetchResource<T>(config);
+                const retVal = await fetchResource<T>(config);
+                const { data, error } = retVal as DatabaseAPI
                 setResource(config.id, {
                     config,
                     data,
                     status: "success",
-                    error: null,
+                    error: error ? error : null,
                     isMutating: false,
                     intervalId,
                 });
@@ -106,11 +128,12 @@ export function useDataResource() {
         // Initial load
         load();
 
-        // Setup interval
-        intervalId = setInterval(() => {
-            if (resources[config.id]?.isMutating) return;
-            load();
-        }, config.refreshRate);
+        // // Setup interval
+        // intervalId = setInterval(() => {
+        //     console.log('interval', isEditing, config.id)
+        //     if (resources[config.id]?.isMutating || isEditing) return;
+        //     load();
+        // }, config.refreshRate);
 
         // Save resource/store intervalId
         setResource(config.id, {
@@ -132,23 +155,24 @@ export function useDataResource() {
         if (resource.intervalId) clearInterval(resource.intervalId);
 
         // Setup new interval
-        const intervalId = setInterval(() => {
-            if (resources[id]?.isMutating) return;
-            fetchResource(resource.config).then((data) => {
-                setResource(id, {
-                    ...resource,
-                    data,
-                    status: "success",
-                    error: null,
-                    intervalId,
-                });
-            });
-        }, newRate);
+        // const intervalId = setInterval(() => {
+        //     console.log('intervalID', isEditing)
+        //     if (resources[id]?.isMutating || isEditing) return;
+        //     fetchResource(resource.config).then((data) => {
+        //         setResource(id, {
+        //             ...resource,
+        //             data,
+        //             status: "success",
+        //             error: null,
+        //             intervalId,
+        //         });
+        //     });
+        // }, newRate);
 
         setResource(id, {
             ...resource,
             config: { ...resource.config, refreshRate: newRate },
-            intervalId,
+            // intervalId,
         });
     }
 
@@ -163,9 +187,8 @@ export function useDataResource() {
         removeResource(id);
     }
 
-    return { resources, create, changeRefreshRate, release };
+    return { resources, create, changeRefreshRate, release, isEditing };
 }
-
 
 /**
  * Access a specific resource's data and perform CRUD actions.
@@ -189,31 +212,59 @@ export function useResourceData<T>(id: string) {
                     body: JSON.stringify(item),
                 });
                 if (!res.ok) throw new Error("Create failed");
-                await res.json();
-                // Optionally re-fetch data afterward
-            } finally {
-                setResource(id, { ...resource, isMutating: false });
+                const retVal = await res.json();
+                const { data, result, error } = retVal as DatabaseAPI
+                setResource(id, {
+                    ...resource,
+                    data,
+                    status: error ? "error" : "success",
+                    error: error ? error : null,
+                    isMutating: false,
+                });
+            } catch (e: any) {
+                setResource(id, {
+                    ...resource,
+                    isMutating: false,
+                    status: "error",
+                    error: e.message,
+                });
             }
         },
         [id, config, resource, setResource]
     );
 
-    // UPDATE (PATCH as example)
+    // UPDATE
     const update = useCallback(
-        async (item: Partial<T> & { id: string | number }) => {
+        // async (item: Partial<T> & { id: string | number }) => {
+
+        async (item: any) => {
+            console.log(item, id, config)
             if (!config) throw new Error("Resource does not exist");
             setResource(id, { ...resource, isMutating: true });
+            const body = { db: config.db, col: config.col, rows: [{ filter: { _id: item._id }, update: item }] }
             try {
-                const res = await fetch(`${config.apiUrl}/${item.id}`, {
-                    method: "PATCH",
+                const res = await fetch(`${config.apiUrl}`, {
+                    method: "PUT",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(item),
+                    body: JSON.stringify(body),
                 });
                 if (!res.ok) throw new Error("Update failed");
-                await res.json();
-                // Optionally re-fetch data afterward
-            } finally {
-                setResource(id, { ...resource, isMutating: false });
+                const retVal = await res.json();
+                const { data, result, error } = retVal as DatabaseAPI
+                setResource(id, {
+                    ...resource,
+                    data,
+                    status: error ? "error" : "success",
+                    error: error ? error : null,
+                    isMutating: false,
+                });
+            } catch (e: any) {
+                setResource(id, {
+                    ...resource,
+                    isMutating: false,
+                    status: "error",
+                    error: e.message,
+                });
             }
         },
         [id, config, resource, setResource]
@@ -229,12 +280,51 @@ export function useResourceData<T>(id: string) {
                     method: "DELETE",
                 });
                 if (!res.ok) throw new Error("Delete failed");
-            } finally {
-                setResource(id, { ...resource, isMutating: false });
+                const retVal = await res.json();
+                const { data, result, error } = retVal as DatabaseAPI
+                setResource(id, {
+                    ...resource,
+                    data,
+                    status: error ? "error" : "success",
+                    error: error ? error : null,
+                    isMutating: false,
+                });
+            } catch (e: any) {
+                setResource(id, {
+                    ...resource,
+                    isMutating: false,
+                    status: "error",
+                    error: e.message,
+                });
             }
         },
         [id, config, resource, setResource]
     );
+
+    // RELOAD
+    const reload = useCallback(() => {
+        if (!config) return;
+        setResource(id, { ...resource, status: "loading", error: null });
+        fetchResource<T>(config)
+            .then((retVal) => {
+                const { data, error } = retVal as DatabaseAPI;
+                setResource(id, {
+                    ...resource,
+                    data,
+                    status: error ? "error" : "success",
+                    error: error ? error : null,
+                    isMutating: false,
+                });
+            })
+            .catch((e: any) => {
+                setResource(id, {
+                    ...resource,
+                    status: "error",
+                    error: e.message,
+                    isMutating: false,
+                });
+            });
+    }, [id, config, resource, setResource]);
 
     // READ: just return `resource.data`
     return {
@@ -245,11 +335,15 @@ export function useResourceData<T>(id: string) {
         create,
         update,
         remove,
-        reload: () => {
-            /* Optionally trigger a manual reload */
-        },
+        reload: reload,
     };
 }
+
+export function useEditing() {
+    const { isEditing, setIsEditing, toggleIsEditing } = useDataResourcesStore();
+    return { isEditing, setIsEditing, toggleIsEditing };
+}
+
 
 /*
 // Example usage in a component

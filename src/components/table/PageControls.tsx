@@ -16,7 +16,7 @@ import { Group, Pagination, Select } from "@mantine/core";
  * @param {TablePageControlsProps} props - Component props
  * @returns {JSX.Element} Pagination and rows per page controls for a table.
  */
-export function Controls({
+export function PageControls({
   page,
   setPage,
   totalPages,

@@ -2,14 +2,14 @@ import { ActionIcon, Burger, Center, Grid } from "@mantine/core";
 import { IconBell } from "@tabler/icons-react";
 import { ProfileAvatar, Search } from ".";
 import Logo from "../../assets/Logo";
-import { useThemeStore } from "../../stores";
+import { useTheme } from "../../hooks";
 
 interface HeaderInterface {
     opened: boolean
     toggle: () => void
 }
 export function Header({ opened, toggle }: HeaderInterface) {
-    const { hiddenFrom, isMobileOrTablet } = useThemeStore()
+    const { hiddenFrom, isMobileOrTablet } = useTheme()
     return (
         <Grid m='xs' columns={48}>
             <Grid.Col span='content' order={1}>

@@ -1,1 +1,1 @@
-export * from './useSyncIsMobileOrTablet'
+export * from './useThemes'

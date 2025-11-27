@@ -1,5 +1,7 @@
 # Habitat Inventory Application
 
+
+
 ## Data Resources
 A data resource is defined to be a name associated with a refresh rate, a schema object, and a CRUD API URL for a backend database. 
 

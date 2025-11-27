@@ -1,5 +1,5 @@
 import ReactDOM from 'react-dom/client';
-import { Button, MantineProvider } from '@mantine/core';
+import { MantineProvider } from '@mantine/core';
 import { theme } from './assets/theme';
 import { ErrorBoundary } from 'react-error-boundary';
 import { AuthenticatedTemplate, MsalProvider, UnauthenticatedTemplate } from '@azure/msal-react';
@@ -33,15 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <MsalProvider instance={pca}>
         <AuthenticatedTemplate>
           <AzureContextProvider >
-            {/* <SettingsProvider>
-          <DataProvider>
-            <MainProvider >
-              <CategoryProvider> */}
             <App />
-            {/* </CategoryProvider>
-            </MainProvider>
-          </DataProvider>
-        </SettingsProvider> */}
           </AzureContextProvider>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>

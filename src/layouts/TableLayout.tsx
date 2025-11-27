@@ -1,10 +1,13 @@
-import { Drawer } from '@mantine/core';
-import { Controls, Filter, Viewer } from '../components/table';
+
+import { Divider, Drawer } from '@mantine/core';
+import { PageControls, Filter, Viewer, Ribbon } from '../components/table';
 import type { ViewerDbTypes } from '../types';
 import type { TableColumnHeader } from '../components/table/types';
-import { useTable } from '../components/table/hooks';
+import { useRibbon, useTable } from '../components/table/hooks';
 import type { JSX, ReactNode } from 'react';
 import { DrawerLayout } from './DrawerLayout';
+import { useDrawerStore } from '../stores';
+import { DRAWER_SIZE, MARGIN_TOP } from '../constants/table';
 
 /**
  * Props for the TableLayout component.
@@ -17,6 +20,7 @@ import { DrawerLayout } from './DrawerLayout';
 interface TableLayoutProps {
   columns: TableColumnHeader[];
   rows: ViewerDbTypes;
+  addRow: (row: any) => void;
   drawerTitle?: string;
   children?: ReactNode;
 }
@@ -46,38 +50,64 @@ interface TableLayoutProps {
 export function TableLayout({
   columns,
   rows,
+  addRow,
   drawerTitle,
   children,
 }: TableLayoutProps): JSX.Element {
+  const { isDrawerOpen, openDrawer, closeDrawer } = useDrawerStore();
+
   /**
    * Custom table hook returns state and handlers for
    * filtering, sorting, pagination, and drawer open/close.
    */
-  const table = useTable({ columns, rows });
+  const table = useTable({ columns, rows, openDrawer });
+  const ribbon = useRibbon({
+    pagedRows: table.pagedRows,
+    addRow: addRow,
+    openDrawer: openDrawer,
+    controls: { add: true, refresh: true, export: true, import: true, filter: true }
+  })
+
+  console.log('TableLayout render')
 
   return (
     <>
+      {/* Action controls (multi select, download, upload, etc) */}
+      <Ribbon {...ribbon} />
+
       {/* Filtering controls */}
       <Filter {...table} />
 
       {/* Main table viewer */}
-      <Viewer
-        columns={columns}
-        rows={table.pagedRows}
-        sort={table.sort}
-        onSort={table.handleSort}
-        onClick={table.handleRowClick}
+      <Viewer {...table}
+
       />
 
       {/* Bottom controls (pagination/actions) */}
-      <Controls {...table} />
+      <PageControls {...table} />
 
       {/* Drawer for showing details or forms */}
-      <Drawer opened={table.drawerOpened} onClose={table.closeDrawer} title={drawerTitle}>
-        <DrawerLayout title={undefined} data={[]} onClose={table.closeDrawer}>
-          {children}
-        </DrawerLayout>
-      </Drawer>
+      <Drawer.Root opened={isDrawerOpen} onClose={closeDrawer}
+        position='right' size={DRAWER_SIZE}
+        styles={{
+          content: { marginTop: MARGIN_TOP, border: '' },
+          overlay: { backgroundOpacity: 0.5, blur: 4, top: MARGIN_TOP }
+        }}
+      >
+        <Drawer.Overlay />
+        <Drawer.Content>
+          <Divider size='md' />
+          <Drawer.Header>
+            <Drawer.Title>{drawerTitle}</Drawer.Title>
+            <Drawer.CloseButton />
+          </Drawer.Header>
+          <Drawer.Body>
+            <DrawerLayout title={undefined} >
+              {children}
+            </DrawerLayout>
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer.Root>
     </>
   );
 }

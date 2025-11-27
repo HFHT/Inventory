@@ -31,6 +31,7 @@ export type TableColumnHeader = {
 export interface TableData {
     columns: TableColumnHeader[];
     rows: ViewerDbTypes;
+    openDrawer: () => void;
 }
 
 /**  
@@ -40,4 +41,32 @@ export interface TableProps {
     /** Table data: columns and rows */
     data: TableData;
     children?: (rowId: string | number | null) => ReactNode;
-} 
+}
+
+/**
+ * Table Ribbon interface.
+ */
+
+export interface TableRibbonType {
+    label?: string
+    controls?: RibbonControls
+}
+
+/**
+ * Props for the Ribbon component
+ */
+export interface RibbonProps {
+    pagedRows: ViewerDbTypes;
+    addRow: (row: any) => void;
+    controls: RibbonControls;
+    openDrawer: () => void;
+}
+export interface RibbonControls {
+    add?: boolean;
+    grid?: boolean;
+    undoRedo?: boolean;
+    refresh?: boolean;
+    export?: boolean;
+    import?: boolean;
+    filter?: boolean;
+}

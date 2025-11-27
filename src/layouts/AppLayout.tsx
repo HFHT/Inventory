@@ -1,9 +1,9 @@
 import { AppShell } from '@mantine/core';
 import { Footer, Header } from '../components/app';
 import { Notifications } from '@mantine/notifications';
-import { useSyncIsMobileOrTablet } from '../hooks';
-import { useNavigationStore, useThemeStore, type NavItem } from '../stores';
+import { useNavigationStore, type NavItem } from '../stores';
 import { Navbar } from '../components/app/navigation/NavBar';
+import { useTheme } from '../hooks';
 
 /**
  * Props for the {@link AppLayout} component.
@@ -23,14 +23,12 @@ import { Navbar } from '../components/app/navigation/NavBar';
  * @returns {JSX.Element} The AppShell layout filled with header, navigation, content and footer.
  */
 export function AppLayout({ children, navStructure }: { children: React.ReactNode, navStructure: NavItem[] }) {
-    // Synchronizes theme/UI state for mobile/tablet detection.
-    useSyncIsMobileOrTablet();
     
     // Navigation store for navbar opened state and toggling.
     const { navbarOpened, toggleNavbar } = useNavigationStore();
     
     // Theme store for responsive UI flags.
-    const { isMobileOrTablet, hiddenFrom } = useThemeStore()
+    const { isMobileOrTablet, hiddenFrom } = useTheme()
 
     return (
         <>

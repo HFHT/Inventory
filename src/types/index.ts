@@ -5,6 +5,7 @@ import type { BulkInventoryItem } from "./construction";
  * used throughout the application.
  *
  * @typedef {BulkInventoryItem[]} ViewerDbTypes
+ * @typedef {BulkInventoryItem} ViewerDbRowTypes
  * 
  * @property {BulkInventoryItem[]} BulkInventoryItem - Array of bulk inventory items.
  * 
@@ -13,3 +14,4 @@ import type { BulkInventoryItem } from "./construction";
  * database types relevant to the inventory application.
  */
 export type ViewerDbTypes = BulkInventoryItem[];
+export type ViewerDbRowTypes = BulkInventoryItem;

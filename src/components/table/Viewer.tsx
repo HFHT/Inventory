@@ -7,7 +7,7 @@ import {
 import type { JSX } from "react";
 import type { TableColumnHeader } from "./types";
 import { getValueByAccessor } from "./utils";
-import type { ViewerDbTypes } from "../../types";
+import type { ViewerDbRowTypes, ViewerDbTypes } from "../../types";
 
 /**
  * Props for the TableView component.
@@ -17,14 +17,14 @@ import type { ViewerDbTypes } from "../../types";
  * @property {ViewerDbTypes[]} rows - The table row data (already filtered and sorted).
  * @property {{ column: string | null, direction: "asc" | "desc" | null }} sort - Current sort column and direction.
  * @property {(accessor: string) => void} onSort - Callback to sort data by column accessor.
- * @property {(id: string | number) => void} onClick - Callback to handle the selection of a table row.
+ * @property {(row: ViewerDbRowTypes) => void} onClick - Callback to handle the selection of a table row.
  */
 export interface TableViewProps {
     columns: TableColumnHeader[];
-    rows: ViewerDbTypes;
+    pagedRows: ViewerDbTypes;
     sort: { column: string | null; direction: "asc" | "desc" | null };
-    onSort: (accessor: string) => void;
-    onClick: (id: string | number) => void;
+    handleSort: (accessor: string) => void;
+    handleRowClick: (row: ViewerDbRowTypes) => void;
 }
 
 /**
@@ -36,7 +36,7 @@ export interface TableViewProps {
  * @param {TableMarkupProps} props The component props.
  * @returns {JSX.Element} The rendered table markup.
  */
-export function Viewer({ columns, rows, sort, onSort, onClick }: TableViewProps) {
+export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick }: TableViewProps) {
     /**
      * Returns the appropriate sort icon for a given column.
      *
@@ -49,7 +49,7 @@ export function Viewer({ columns, rows, sort, onSort, onClick }: TableViewProps)
         if (sort.direction === "desc") return <IconChevronDown size={14} />;
         return <IconSelector size={14} />;
     };
-    console.log('TableView render')
+    console.log('Viewer render')
     return (
         <MantineTable.ScrollContainer minWidth={500} maxHeight={500}>
             <MantineTable
@@ -70,7 +70,7 @@ export function Viewer({ columns, rows, sort, onSort, onClick }: TableViewProps)
                                 ) : (
                                     // Sortable column
                                     <UnstyledButton
-                                        onClick={() => onSort(col.accessor)}
+                                        onClick={() => handleSort(col.accessor)}
                                         style={{ width: "100%" }}
                                         aria-label={`Sort by ${col.label}`}
                                     >
@@ -85,7 +85,7 @@ export function Viewer({ columns, rows, sort, onSort, onClick }: TableViewProps)
                     </MantineTable.Tr>
                 </MantineTable.Thead>
                 <MantineTable.Tbody>
-                    {rows.length === 0 ? (
+                    {pagedRows.length === 0 ? (
                         // No data row
                         <MantineTable.Tr>
                             <MantineTable.Td colSpan={columns.length} style={{ textAlign: "center" }}>
@@ -94,11 +94,11 @@ export function Viewer({ columns, rows, sort, onSort, onClick }: TableViewProps)
                         </MantineTable.Tr>
                     ) : (
                         // Render each row of data
-                        rows.map((row, i) => (
+                        pagedRows.map((row, i) => (
                             <MantineTable.Tr
                                 key={i}
                                 style={{ cursor: "pointer" }}
-                                onClick={() => onClick(row._id)}
+                                onClick={() => handleRowClick(row)}
                             >
                                 {columns.map((col) => (
                                     <MantineTable.Td key={col.accessor}>

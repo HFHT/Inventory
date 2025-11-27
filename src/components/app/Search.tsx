@@ -5,7 +5,8 @@ import { useDebouncedCallback, useDisclosure } from '@mantine/hooks';
 import { IconExclamationCircle, IconSearch, IconX } from "@tabler/icons-react";
 import { existsByProp, toggleByProp } from '../../utils/array';
 import type { SearchFnType } from './hooks/useSearch';
-import { useThemeStore } from '../../stores';
+import { useTheme } from '../../hooks';
+import { ROW_LIMIT } from '../../constants/appLayout';
 /**
  * @prop {boolean}  visibleFrom     - Used to control the formatting on mobile devices
  * @prop {object}   sources         - Array of database and corresponding search index to display as pills to narrow the search function
@@ -49,9 +50,9 @@ type SearchAutocompleteProps<T> = {
     loading: boolean;
     limit?: number
 };
-const ROW_LIMIT = 15
+
 export function Search({ searching, }: SearchProps) {
-    const { isMobileOrTablet } = useThemeStore()
+    const { isMobileOrTablet } = useTheme()
     // const { searchFn, searchSources, unsavedChanges, requestSave, requestDiscard } = usePageLayoutSearch()
     // const [searchSelected, { open, toggle }] = useDisclosure(false)
 

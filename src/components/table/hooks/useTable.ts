@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import type { TableData } from "../types";
 import { filterRowsByFilterType, separateColumnsByFilterType, sortRows } from "../utils";
+import type { ViewerDbRowTypes } from "../../../types";
+import { useSelectedRowStore } from "../../../stores";
 
 /**
  * State and logic management for the Table component.
@@ -64,20 +66,11 @@ export function useTable(data: TableData) {
     }, [filterColumns]);
 
 
-    // Drawer State
-    const [drawerOpened, setDrawerOpened] = useState(false);
-    const [selectedRowId, setSelectedRowId] = useState<string | number | null>(null);
-
-    /** Handle row click to open drawer */
-    const handleRowClick = (_id: string | number) => {
-        console.log(_id)
-        setSelectedRowId(_id ?? null);
-        setDrawerOpened(true);
-    };
-    // Reset rowId on drawer close
-    const closeDrawer = () => {
-        setDrawerOpened(false);
-        setSelectedRowId(null);
+    /** Handle row click (set selected row in Zustand store) */
+    const handleRowClick = (row: ViewerDbRowTypes) => {
+        useSelectedRowStore.getState().setSelectedRow(row);
+        data.openDrawer()
+        console.log(row);
     };
 
     return {
@@ -87,9 +80,6 @@ export function useTable(data: TableData) {
 
         // Events
         handleRowClick,
-        drawerOpened,
-        closeDrawer,
-        selectedRowId,
 
         // Filtering
         filterValue,
