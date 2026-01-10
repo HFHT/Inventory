@@ -202,14 +202,15 @@ export function useResourceData<T>(id: string) {
 
     // CREATE
     const create = useCallback(
-        async (item: Partial<T>) => {
+        async (item: any) => {
             if (!config) throw new Error("Resource does not exist");
             setResource(id, { ...resource, isMutating: true });
+            const body = { db: config.db, col: config.col, rows: [item] }
             try {
                 const res = await fetch(config.apiUrl, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(item),
+                    body: JSON.stringify(body),
                 });
                 if (!res.ok) throw new Error("Create failed");
                 const retVal = await res.json();
@@ -239,6 +240,10 @@ export function useResourceData<T>(id: string) {
 
         async (item: any) => {
             console.log(item, id, config)
+            if (!resource.data.find((d: any) => d._id === item._id)) {
+                await create(item)
+                return
+            }
             if (!config) throw new Error("Resource does not exist");
             setResource(id, { ...resource, isMutating: true });
             const body = { db: config.db, col: config.col, rows: [{ filter: { _id: item._id }, update: item }] }

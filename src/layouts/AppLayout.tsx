@@ -4,6 +4,8 @@ import { Notifications } from '@mantine/notifications';
 import { useNavigationStore, type NavItem } from '../stores';
 import { Navbar } from '../components/app/navigation/NavBar';
 import { useTheme } from '../hooks';
+import { getScreenHeightMinus } from '../utils';
+import { HEADER_HEIGHT } from '../constants/appLayout';
 
 /**
  * Props for the {@link AppLayout} component.
@@ -35,7 +37,7 @@ export function AppLayout({ children, navStructure }: { children: React.ReactNod
             {/* Mantine notifications positioned top-right */}
             <Notifications position="top-right" />
             <AppShell
-                header={{ height: isMobileOrTablet ? 110 : 70 }}
+                header={{ height: isMobileOrTablet ? HEADER_HEIGHT : HEADER_HEIGHT }}
                 navbar={{
                     width: { base: 200, md: 220, lg: 240 },
                     breakpoint: hiddenFrom,
@@ -49,7 +51,7 @@ export function AppLayout({ children, navStructure }: { children: React.ReactNod
                 </AppShell.Header>
                 <AppShell.Navbar>
                     {/* Side navigation with dynamic navigation tree */}
-                    <Navbar navigationTree={navStructure} toggle={toggleNavbar} />
+                    <Navbar navigationTree={navStructure} toggle={toggleNavbar} navHeight={getScreenHeightMinus(HEADER_HEIGHT)}/>
                 </AppShell.Navbar>
                 <AppShell.Main>
                     {/* Main application content */}

@@ -1,33 +1,68 @@
 import classes from './styles/Ribbon.module.css'
-import { Container, Group } from "@mantine/core";
-import type { JSX } from "react";
+import { Button, Container, Group, Text } from "@mantine/core";
+import { type JSX } from "react";
 import { useTheme } from '../../hooks';
-import { Add, EmptySlot, Export, Filter, Grid, Import, Refresh, UndoRedo } from './components';
+import { Add, EmptySlot, Export, Filter, Grid, Import, Palletize, Refresh, Transfer, UndoRedo } from './components';
 import type { RibbonProps } from './types';
+import { InlineDialog } from '../display';
 
 export function Ribbon({
     pagedRows,
-    addRow,
-    controls
+    emptyRow,
+    checkbox,
+    controls,
+    reload,
+    openDrawer,
+    mode,
+    setMode,
+    handleToggleModal,
+    clearSelectedRowIds,
+    modalButtonLabel
 }: RibbonProps): JSX.Element | null {
     const { isSmallScreen } = useTheme()
     const readOnly = false;
-    console.log(controls, pagedRows)
+    const buttonText = () => {
+        return checkbox?.noneSelected ? '...none selected' : `${modalButtonLabel} ${checkbox?.numSelected} item(s)`
+    }
+    const handleTransferClick = (newTransferMode: any) => {
+        console.log(mode, newTransferMode)
+        if (mode === newTransferMode || mode === null) {
+            checkbox?.handleToggleCheckboxes()
+        }
+        if (mode === newTransferMode) {
+            setMode(null)
+        } else {
+            setMode(newTransferMode)
+        }
+    }
+    const handleClose = () => {
+        checkbox?.handleToggleCheckboxes()
+        clearSelectedRowIds()
+        setMode(null)
+    }
+    console.log(mode, controls, pagedRows, checkbox)
     return (
         <header className={classes.header}>
             <Container fluid className={classes.container}>
                 <div className={classes.inner}>
                     <Group gap={isSmallScreen ? 0 : 5} >
                         {/* {items} */}
-                        {controls.add && <Add label='Add' />}
+                        {controls.add && <Add label='Add' emptyRow={emptyRow} openDrawer={openDrawer} />}
+                        {controls.transfer && <Transfer label='Transfer' onClick={() => handleTransferClick('transfer')} />}
+                        {controls.pallet && <Palletize label='Palletize' onClick={() => handleTransferClick('pallet')} />}
                         {controls.grid && (readOnly ? <EmptySlot /> : <Grid label='Grid' />)}
                         {controls.undoRedo && <UndoRedo />}
-                        {controls.refresh && <Refresh label='Refresh' />}
-                        {controls.export && <Export label='Export' />}
+                        {controls.refresh && <Refresh label='Refresh' reload={reload} />}
+                        {controls.export && <Export label='Export' data={pagedRows} />}
                         {controls.import && (readOnly ? <EmptySlot /> : <Import label='Import' />)}
                         {controls.filter && <Filter label='Filter' />}
                     </Group>
                 </div>
             </Container>
+            {mode !== null &&
+                <InlineDialog classes={classes} buttonText={buttonText()} title={mode}
+                    checkbox={checkbox} handleClose={() => handleClose()} handleToggleModal={handleToggleModal}
+                />
+            }
         </header>)
 }

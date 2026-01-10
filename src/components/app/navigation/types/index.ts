@@ -18,3 +18,5 @@ type NavGroup = NavItemBase & {
 };
 
 export type NavItem = NavLeaf | NavGroup;
+
+export type NavStructure = NavItem[];

@@ -34,36 +34,6 @@ export const navStructure: NavItem[] = [
     },
 
     /**
-     * Actions section: scan, palletize, receipts, inventory.
-     */
-    {
-        label: 'Actions',
-        key: 'Actions',
-        children: [
-            {
-                label: 'Scan Item(s)',
-                page: <Actions category='Scan' />,
-                key: 'ScanInput'
-            },
-            {
-                label: 'Palletize',
-                page: <></>,
-                key: 'Palletize'
-            },
-            {
-                label: 'Receipts',
-                page: <Actions category='Receipts' />,
-                key: 'Receipts'
-            },
-            {
-                label: 'Perform Inventory',
-                page: <></>,
-                key: 'Inventory'
-            },
-        ],
-    },
-
-    /**
      * Construction materials/categories section.
      */
     {
@@ -147,6 +117,36 @@ export const navStructure: NavItem[] = [
         children: []
     },
 
+        /**
+     * Actions section: scan, palletize, receipts, inventory.
+     */
+    {
+        label: 'Actions',
+        key: 'Actions',
+        children: [
+            {
+                label: 'Scan Item(s)',
+                page: <Actions category='Scan' />,
+                key: 'ScanInput'
+            },
+            {
+                label: 'Palletize',
+                page: <></>,
+                key: 'Palletize'
+            },
+            {
+                label: 'Receipts',
+                page: <Actions category='Receipts' />,
+                key: 'Receipts'
+            },
+            {
+                label: 'Perform Inventory',
+                page: <></>,
+                key: 'Inventory'
+            },
+        ],
+    },
+    
     /*
     // Example for future Home Models section:
     // {

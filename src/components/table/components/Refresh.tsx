@@ -3,10 +3,9 @@ import { Center, Text } from "@mantine/core";
 import { IconRefresh } from "@tabler/icons-react";
 import type { TableRibbonType } from '../types';
 
-export function Refresh({ label }: TableRibbonType) {
-  // const refresh = useTableDataRefresh()
+export function Refresh({ label, reload }: TableRibbonType) {
   return (
-    <span className={classes.link} onClick={() => /* refresh()*/console.log('click')}>
+    <span className={classes.link} onClick={reload}>
       <Center>
         <IconRefresh size={14} />
         <Text size='sm' visibleFrom='sm' className={classes.linkLeft}>{label}</Text>

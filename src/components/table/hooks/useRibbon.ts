@@ -5,8 +5,10 @@ export function useRibbon(data: RibbonProps) {
 
     return {
         controls: data.controls,
+        checkbox: data.checkbox,
         pagedRows: data.pagedRows,
-        addRow: data.addRow,
+        emptyRow: data.emptyRow,
+        reload: data.reload,
         openDrawer: data.openDrawer
     }
 }

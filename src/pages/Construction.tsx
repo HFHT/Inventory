@@ -4,11 +4,12 @@ import { useDataResource, useResourceData } from '../stores/dataResourceStore';
 import type { BulkInventoryItem } from '../types/construction';
 import type { TableColumnHeader } from '../components/table/types';
 import { Title } from '@mantine/core';
-import { EditItem } from '../features/construction';
+import { EditItem, TransferItems, PalletizeItems } from '../features/construction';
+import { uniqueKey } from '../utils';
 
 export function Construction({ category }: { category: string }) {
   const { create, release } = useDataResource();
-  const { data } = useResourceData<BulkInventoryItem[]>("inventory");
+  const { data, reload } = useResourceData<BulkInventoryItem[]>("inventory");
 
   console.log(category)
   useEffect(() => {
@@ -23,7 +24,7 @@ export function Construction({ category }: { category: string }) {
       id: "parcelInventory",
       apiUrl: `${import.meta.env.VITE_DATABASE_API}/mongoDB`,
       db: 'Homes',
-      col: 'Inventory',
+      col: 'ParcelInventory',
       refreshRate: 10000
     });
     return () => {
@@ -42,14 +43,43 @@ export function Construction({ category }: { category: string }) {
     { accessor: "_id", label: "ID", filterType: "equal" },
   ], [])
 
+  const emptyRow: BulkInventoryItem = {
+    _id: uniqueKey(),
+    barcodes: [],
+    pin: false,
+    select: {
+      category: category,
+      subCategory: ''
+    },
+    suppliers: [],
+    title: '',
+    images: {
+      favorite: null,
+      urls: []
+    },
+    warnLevels: {
+      notify: 0,
+      warn: 0
+    },
+    quantity: {
+      total: 0,
+      byLocation: [{ loc: 'Chuck', qty: 0 }]
+    }
+  }
+
   const filteredByCategoryData = useMemo(() => {
     if (!data) return []
     return data.filter(d => category === '' || d.select.category === category)
   }, [category, data])
 
-  const addRow = (row: BulkInventoryItem) => {
-    console.log(row)
-  }
+  const modals = useMemo(() => {
+    return [
+      { mode: 'transfer', title: 'Transfer Inventory Item(s)', label: 'Transfer', component: <TransferItems /> },
+      { mode: 'pallet', title: 'Pallet Information', label: 'Palletize', component: <PalletizeItems /> }
+    ]
+
+  }, [])
+
   if (!data) return <></>
   console.log('Construction render')
 
@@ -59,8 +89,11 @@ export function Construction({ category }: { category: string }) {
       <TableLayout
         columns={columns}
         rows={filteredByCategoryData}
-        addRow={addRow}
+        emptyRow={emptyRow}
+        reload={reload}
         drawerTitle='Edit Inventory Item'
+        // modalTitle='Transfer Inventory Item(s)'
+        modals={modals}
       >
         <EditItem />
       </TableLayout>

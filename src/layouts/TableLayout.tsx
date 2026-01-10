@@ -1,13 +1,14 @@
 
 import { Divider, Drawer } from '@mantine/core';
-import { PageControls, Filter, Viewer, Ribbon } from '../components/table';
-import type { ViewerDbTypes } from '../types';
+import { PageControls, Filter, Viewer, Ribbon, Overlay } from '../components/table';
+import type { ViewerDbRowTypes, ViewerDbTypes } from '../types';
 import type { TableColumnHeader } from '../components/table/types';
 import { useRibbon, useTable } from '../components/table/hooks';
-import type { JSX, ReactNode } from 'react';
+import { useEffect, useState, type JSX, type ReactNode } from 'react';
 import { DrawerLayout } from './DrawerLayout';
 import { useDrawerStore } from '../stores';
 import { DRAWER_SIZE, MARGIN_TOP } from '../constants/table';
+import { useDisclosure } from '@mantine/hooks';
 
 /**
  * Props for the TableLayout component.
@@ -20,9 +21,17 @@ import { DRAWER_SIZE, MARGIN_TOP } from '../constants/table';
 interface TableLayoutProps {
   columns: TableColumnHeader[];
   rows: ViewerDbTypes;
-  addRow: (row: any) => void;
+  emptyRow: ViewerDbRowTypes;
+  reload: () => void;
   drawerTitle?: string;
+  // modalTitle?: string;
   children?: ReactNode;
+  modals?: {
+    mode: string | null,
+    title: string,
+    label: string,
+    component: ReactNode | JSX.Element;
+  }[]
 }
 
 /**
@@ -50,23 +59,51 @@ interface TableLayoutProps {
 export function TableLayout({
   columns,
   rows,
-  addRow,
+  emptyRow,
+  reload,
   drawerTitle,
+  // modalTitle,
   children,
+  modals,
 }: TableLayoutProps): JSX.Element {
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawerStore();
+  // mode controls which modal component is used within the custom modal
+  const [mode, setMode] = useState<string | null>(null)
+  const [opened, { open, close, toggle }] = useDisclosure(false)
 
+  const findModalChild = () => {
+    const result = modals?.find(f => f.mode === mode)
+    if (!result || !result.component) return undefined
+    return result.component
+  }
+  const findModalTitle = () => {
+    const result = modals?.find(f => f.mode === mode)
+    if (!result || !result.title) return undefined
+    return result.title
+  }
+  const findModalLabel = () => {
+    const result = modals?.find(f => f.mode === mode)
+    if (!result || !result.label) return undefined
+    return result.label
+  }
   /**
    * Custom table hook returns state and handlers for
    * filtering, sorting, pagination, and drawer open/close.
    */
   const table = useTable({ columns, rows, openDrawer });
-  const ribbon = useRibbon({
+  const ribbon = {
     pagedRows: table.pagedRows,
-    addRow: addRow,
+    checkbox: table.checkbox,
+    clearSelectedRowIds: table.clearSelectedRowIds,
+    emptyRow: emptyRow,
+    reload: reload,
     openDrawer: openDrawer,
-    controls: { add: true, refresh: true, export: true, import: true, filter: true }
-  })
+    controls: { add: true, transfer: true, pallet: true, refresh: true, export: true, import: true, filter: true },
+    mode: mode,
+    setMode: setMode,
+    handleToggleModal: toggle,
+    modalButtonLabel: findModalLabel()
+  }
 
   console.log('TableLayout render')
 
@@ -79,9 +116,7 @@ export function TableLayout({
       <Filter {...table} />
 
       {/* Main table viewer */}
-      <Viewer {...table}
-
-      />
+      <Viewer {...table} />
 
       {/* Bottom controls (pagination/actions) */}
       <PageControls {...table} />
@@ -108,6 +143,9 @@ export function TableLayout({
           </Drawer.Body>
         </Drawer.Content>
       </Drawer.Root>
+
+      {/* Modal overlay controlled by the Ribbon mode */}
+      <Overlay title={findModalTitle()} opened={opened} close={close} children={findModalChild()} />
     </>
   );
 }

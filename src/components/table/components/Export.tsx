@@ -2,13 +2,14 @@ import classes from './../styles/Ribbon.module.css'
 import { Center, Menu, Text } from "@mantine/core";
 import { IconChevronDown, IconDownload, IconFileTypeCsv, IconFileTypeXls, IconUpload } from "@tabler/icons-react";
 import type { TableRibbonType } from '../types';
-// import { useTableExport } from '../../context';
+import { exportToCSV } from '../../../services/excel';
 
-export function Export({ label }: TableRibbonType) {
-  // const { requestExport } = useTableExport();
+export function Export({ label, data }: TableRibbonType) {
   const handleRequest = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, type: 'csv' | 'xls' | 'model') => {
     event.preventDefault()
     console.log(type)
+    if (!data) return
+    exportToCSV(data, [{ key: '_id', order: 1, title: 'Id' }], 'xyz')
   }
   return (
     <span className={classes.link}>

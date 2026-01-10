@@ -1,4 +1,5 @@
 export * from './Ribbon'
 export * from './PageControls'
+export * from './Overlay'
 export * from './Filter'
 export * from './Viewer'

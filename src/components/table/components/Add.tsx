@@ -1,14 +1,19 @@
 import classes from './../styles/Ribbon.module.css'
 import { Button, Menu, Text } from "@mantine/core";
 import { IconCirclePlus } from "@tabler/icons-react";
+import { useSelectedRowStore } from '../../../stores';
 interface AddProps {
-  label: string
+  label: string;
+  emptyRow: any;
+  openDrawer: () => void;
 }
 
-export function Add({ label }: AddProps) {
+export function Add({ label, emptyRow, openDrawer }: AddProps) {
+  const setSelectedRow = useSelectedRowStore((state) => state.setSelectedRow);
 
   const handleClick = () => {
-    // addRow()
+    openDrawer()
+    setSelectedRow({ ...emptyRow })
   }
   return (
     <Menu trigger="hover" transitionProps={{ exitDuration: 0 }} withinPortal >

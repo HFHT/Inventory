@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ViewerDbTypes } from "../../../types";
+import type { ViewerDbRowTypes, ViewerDbTypes } from "../../../types";
 
 // TypeScript types
 export type TableColumnHeader = {
@@ -44,12 +44,31 @@ export interface TableProps {
 }
 
 /**
+ * Table Checkbox interface
+ */
+export interface TableCheckbox {
+    allSelected: boolean;
+    indeterminate: boolean;
+    noneSelected: boolean;
+    numSelected: number;
+    pagedRowIds: (string | number)[];
+    handleToggleAll: () => void;
+    handleToggleRow: (rowId: string | number) => void;
+    handleToggleCheckboxes: () => void;
+    showCheckboxes: boolean;
+}
+
+/**
  * Table Ribbon interface.
  */
 
 export interface TableRibbonType {
-    label?: string
-    controls?: RibbonControls
+    label?: string;
+    controls?: RibbonControls;
+    reload?: () => void;
+    onClick?: () => void | undefined;
+    // setTransferMode?: (mode: 'transfer' | 'pallet') => void;
+    data?: ViewerDbTypes;
 }
 
 /**
@@ -57,12 +76,21 @@ export interface TableRibbonType {
  */
 export interface RibbonProps {
     pagedRows: ViewerDbTypes;
-    addRow: (row: any) => void;
+    emptyRow: ViewerDbRowTypes;
+    checkbox: TableCheckbox | undefined;
     controls: RibbonControls;
+    reload: () => void;
     openDrawer: () => void;
+    mode: string | null;
+    setMode: (m: string | null) => void;
+    handleToggleModal: () => void;
+    clearSelectedRowIds: () => void;
+    modalButtonLabel: string | undefined;
 }
 export interface RibbonControls {
     add?: boolean;
+    transfer?: boolean;
+    pallet?: boolean;
     grid?: boolean;
     undoRedo?: boolean;
     refresh?: boolean;

@@ -3,6 +3,9 @@ import type { TableData } from "../types";
 import { filterRowsByFilterType, separateColumnsByFilterType, sortRows } from "../utils";
 import type { ViewerDbRowTypes } from "../../../types";
 import { useSelectedRowStore } from "../../../stores";
+import { useTableSelectionStore } from "../stores/tableStore";
+
+
 
 /**
  * State and logic management for the Table component.
@@ -10,6 +13,16 @@ import { useSelectedRowStore } from "../../../stores";
  * @param {TableData} data 
  */
 export function useTable(data: TableData) {
+
+    // Selected Row Ids
+    const {
+        selectedRowIds,
+        setSelectedRowIds,
+        addSelectedRowId,
+        removeSelectedRowId,
+        clearSelectedRowIds,
+    } = useTableSelectionStore();
+
     // Rows-per-page options
     const rowCounts = [20, 50, 100];
 
@@ -27,6 +40,7 @@ export function useTable(data: TableData) {
     // Filter value
     const [filterValue, setFilterValue] = useState("");
 
+    // --- Checkbox / Selection state ---
     /** Columns with filtering config derived */
     const filterColumns = useMemo(
         () => separateColumnsByFilterType(data.columns),
@@ -65,6 +79,54 @@ export function useTable(data: TableData) {
         setPage(1);
     }, [filterColumns]);
 
+    // Reset checkboxes on data refresh, filter, sort, etc.
+    useEffect(() => {
+        clearSelectedRowIds();
+    }, [filteredRows, page, rowsPerPage]);
+
+    // Checkbox logic
+    // IDs of currently displayed page
+    const pagedRowIds = useMemo(
+        () => pagedRows.map((row) => row._id),
+        [pagedRows]
+    );
+
+    const isRowSelected = (rowId: ViewerDbRowTypes["_id"]) => selectedRowIds.includes(rowId);
+
+    // For page checkbox header:
+    const numSelected = pagedRowIds.filter(id => selectedRowIds.includes(id)).length;
+    const allSelected = pagedRowIds.length > 0 && numSelected === pagedRowIds.length;
+    const noneSelected = numSelected === 0;
+    const someSelected = !noneSelected && !allSelected;
+    const indeterminate = someSelected;
+    const [showCheckboxes, setShowCheckboxes] = useState(false);
+
+    const handleToggleCheckboxes = () => {
+        console.log('toggle', showCheckboxes)
+        setShowCheckboxes(!showCheckboxes);
+    }
+
+
+
+    // Handler for header checkbox
+    const handleToggleAll = () => {
+        if (allSelected) {
+            // Remove all from this page
+            setSelectedRowIds(selectedRowIds.filter(id => !pagedRowIds.includes(id)));
+        } else {
+            // Add all from this page
+            setSelectedRowIds(Array.from(new Set([...selectedRowIds, ...pagedRowIds])));
+        }
+    };
+
+    // Handler for individual row
+    const handleToggleRow = (rowId: ViewerDbRowTypes["_id"]) => {
+        if (selectedRowIds.includes(rowId)) {
+            removeSelectedRowId(rowId);
+        } else {
+            addSelectedRowId(rowId);
+        }
+    };
 
     /** Handle row click (set selected row in Zustand store) */
     const handleRowClick = (row: ViewerDbRowTypes) => {
@@ -77,6 +139,23 @@ export function useTable(data: TableData) {
         // Data
         columns: data.columns,
         pagedRows,
+
+        // Row selection
+        selectedRowIds,
+        isRowSelected,
+        clearSelectedRowIds,
+        // Checkbox only if enabled
+        checkbox: {
+            allSelected,
+            indeterminate,
+            noneSelected,
+            numSelected,
+            pagedRowIds,
+            handleToggleAll,
+            handleToggleRow,
+            handleToggleCheckboxes,
+            showCheckboxes,
+        },
 
         // Events
         handleRowClick,

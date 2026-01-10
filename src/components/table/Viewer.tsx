@@ -1,11 +1,11 @@
-import { Table as MantineTable, Group, UnstyledButton, Center, Box } from "@mantine/core";
+import { Table as MantineTable, Group, UnstyledButton, Center, Box, Checkbox } from "@mantine/core";
 import {
     IconChevronUp,
     IconChevronDown,
     IconSelector,
 } from "@tabler/icons-react";
 import type { JSX } from "react";
-import type { TableColumnHeader } from "./types";
+import type { TableCheckbox, TableColumnHeader } from "./types";
 import { getValueByAccessor } from "./utils";
 import type { ViewerDbRowTypes, ViewerDbTypes } from "../../types";
 
@@ -25,6 +25,9 @@ export interface TableViewProps {
     sort: { column: string | null; direction: "asc" | "desc" | null };
     handleSort: (accessor: string) => void;
     handleRowClick: (row: ViewerDbRowTypes) => void;
+    checkbox: TableCheckbox;
+    isRowSelected: (rowId: string | number) => boolean;
+    selectedRowIds: ViewerDbRowTypes["_id"][]
 }
 
 /**
@@ -36,7 +39,7 @@ export interface TableViewProps {
  * @param {TableMarkupProps} props The component props.
  * @returns {JSX.Element} The rendered table markup.
  */
-export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick }: TableViewProps) {
+export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick, checkbox, isRowSelected, selectedRowIds }: TableViewProps) {
     /**
      * Returns the appropriate sort icon for a given column.
      *
@@ -62,6 +65,7 @@ export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick }:
             >
                 <MantineTable.Thead>
                     <MantineTable.Tr>
+                        {checkbox.showCheckboxes && <MantineTable.Th><Checkbox checked={checkbox.allSelected} indeterminate={checkbox.indeterminate} onChange={() => checkbox.handleToggleAll()} variant='outline' /></MantineTable.Th>}
                         {columns.map((col) => (
                             <MantineTable.Th key={col.accessor}>
                                 {col.sortable === false ? (
@@ -98,10 +102,10 @@ export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick }:
                             <MantineTable.Tr
                                 key={i}
                                 style={{ cursor: "pointer" }}
-                                onClick={() => handleRowClick(row)}
                             >
+                                {checkbox.showCheckboxes && <MantineTable.Td><Checkbox variant='outline' checked={isRowSelected(row._id)} onChange={() => checkbox.handleToggleRow(row._id)} /></MantineTable.Td>}
                                 {columns.map((col) => (
-                                    <MantineTable.Td key={col.accessor}>
+                                    <MantineTable.Td key={col.accessor} onClick={() => handleRowClick(row)}>
                                         {getValueByAccessor(row, col.accessor)}
                                     </MantineTable.Td>
                                 ))}
