@@ -1,5 +1,5 @@
 import classes from './styles/Ribbon.module.css'
-import { Button, Container, Group, Text } from "@mantine/core";
+import { Container, Group } from "@mantine/core";
 import { type JSX } from "react";
 import { useTheme } from '../../hooks';
 import { Add, EmptySlot, Export, Filter, Grid, Import, Palletize, Refresh, Transfer, UndoRedo } from './components';
@@ -15,8 +15,8 @@ export function Ribbon({
     openDrawer,
     mode,
     setMode,
+    handleClose,
     handleToggleModal,
-    clearSelectedRowIds,
     modalButtonLabel
 }: RibbonProps): JSX.Element | null {
     const { isSmallScreen } = useTheme()
@@ -35,11 +35,11 @@ export function Ribbon({
             setMode(newTransferMode)
         }
     }
-    const handleClose = () => {
-        checkbox?.handleToggleCheckboxes()
-        clearSelectedRowIds()
-        setMode(null)
-    }
+    // const handleClose = () => {
+    //     checkbox?.handleToggleCheckboxes()
+    //     clearSelectedRowIds()
+    //     setMode(null)
+    // }
     console.log(mode, controls, pagedRows, checkbox)
     return (
         <header className={classes.header}>

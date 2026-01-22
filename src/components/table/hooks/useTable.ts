@@ -135,11 +135,24 @@ export function useTable(data: TableData) {
         console.log(row);
     };
 
+    /** mode controls which modal component is used within the custom modal */
+    const [mode, setMode] = useState<string | null>(null)
+    const handleClose = () => {
+        handleToggleCheckboxes()
+        clearSelectedRowIds()
+        setMode(null)
+    }
+
     return {
         // Data
         columns: data.columns,
         pagedRows,
-
+        // controls
+        control: {
+            mode: mode,
+            setMode: setMode,
+            handleClose: handleClose
+        },
         // Row selection
         selectedRowIds,
         isRowSelected,

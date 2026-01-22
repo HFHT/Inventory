@@ -83,6 +83,7 @@ export interface RibbonProps {
     openDrawer: () => void;
     mode: string | null;
     setMode: (m: string | null) => void;
+    handleClose: () => void;
     handleToggleModal: () => void;
     clearSelectedRowIds: () => void;
     modalButtonLabel: string | undefined;

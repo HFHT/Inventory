@@ -11,7 +11,7 @@ interface OverlayProps {
 export function Overlay({ opened, close, title, children }: OverlayProps) {
     if (!children) return <></>
     return (
-        <Modal opened={opened} onClose={close} title={title} size='xl'>
+        <Modal opened={opened} onClose={close} title={title} size='xl' closeOnClickOutside={false}>
             {children}
         </Modal>
     )

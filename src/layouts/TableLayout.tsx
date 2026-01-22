@@ -9,6 +9,7 @@ import { DrawerLayout } from './DrawerLayout';
 import { useDrawerStore } from '../stores';
 import { DRAWER_SIZE, MARGIN_TOP } from '../constants/table';
 import { useDisclosure } from '@mantine/hooks';
+import React from 'react';
 
 /**
  * Props for the TableLayout component.
@@ -67,30 +68,45 @@ export function TableLayout({
   modals,
 }: TableLayoutProps): JSX.Element {
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawerStore();
-  // mode controls which modal component is used within the custom modal
-  const [mode, setMode] = useState<string | null>(null)
-  const [opened, { open, close, toggle }] = useDisclosure(false)
 
-  const findModalChild = () => {
-    const result = modals?.find(f => f.mode === mode)
-    if (!result || !result.component) return undefined
-    return result.component
-  }
-  const findModalTitle = () => {
-    const result = modals?.find(f => f.mode === mode)
-    if (!result || !result.title) return undefined
-    return result.title
-  }
-  const findModalLabel = () => {
-    const result = modals?.find(f => f.mode === mode)
-    if (!result || !result.label) return undefined
-    return result.label
-  }
   /**
    * Custom table hook returns state and handlers for
    * filtering, sorting, pagination, and drawer open/close.
    */
   const table = useTable({ columns, rows, openDrawer });
+
+
+  const [opened, { open, close, toggle }] = useDisclosure(false)
+
+  const handleClose = () => {
+    console.log('handleClose')
+    table.control.handleClose()
+    reload()
+    close()
+  }
+
+  const findModalChild = () => {
+    const result = modals?.find(f => f.mode === table.control.mode);
+    if (!result || !result.component) return undefined;
+    // Only inject if it is a valid React element
+    if (React.isValidElement(result.component)) {
+      return React.cloneElement(result.component as React.ReactElement<any>, { handleClose });
+    }
+    // If it's JSX.Element or function, you may need other strategies
+    return result.component;
+  };
+
+  const findModalTitle = () => {
+    const result = modals?.find(f => f.mode === table.control.mode)
+    if (!result || !result.title) return undefined
+    return result.title
+  }
+  const findModalLabel = () => {
+    const result = modals?.find(f => f.mode === table.control.mode)
+    if (!result || !result.label) return undefined
+    return result.label
+  }
+
   const ribbon = {
     pagedRows: table.pagedRows,
     checkbox: table.checkbox,
@@ -99,8 +115,9 @@ export function TableLayout({
     reload: reload,
     openDrawer: openDrawer,
     controls: { add: true, transfer: true, pallet: true, refresh: true, export: true, import: true, filter: true },
-    mode: mode,
-    setMode: setMode,
+    mode: table.control.mode,
+    setMode: table.control.setMode,
+    handleClose: table.control.handleClose,
     handleToggleModal: toggle,
     modalButtonLabel: findModalLabel()
   }

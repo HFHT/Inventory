@@ -1,58 +1,115 @@
-import { Grid, NumberInput, Select, Table } from "@mantine/core";
-import { useTableSelectionStore } from "../../../components/table/stores/tableStore";
-import { useLocations, useResourceData } from "../../../stores";
+import { Button, CloseButton, Flex, Grid, NumberInput, Select, Table } from "@mantine/core";
+import { IconCircleCheckFilled, IconExclamationCircleFilled, IconTruck } from "@tabler/icons-react";
+import { useTransferItems } from "../hooks";
+import type { JSX } from "react";
 import type { BulkInventoryItem } from "../../../types/construction";
-import type { ParcelInventoryType } from "../parcels/types";
-import { useMemo, useState } from "react";
+import { numberError } from "../../../utils";
 
-export function TransferItems() {
-    const [selects, setSelects] = useState<{ from: string | null, to: string | null, parcel: string | null }>({ from: 'Chuck', to: null, parcel: 'Any' })
-    const selectedRowIds = useTableSelectionStore(state => state.selectedRowIds);
-    const locations = useLocations();
-    const { data } = useResourceData<BulkInventoryItem[]>("inventory");
-    const { data: parcelData } = useResourceData<ParcelInventoryType[]>("parcelInventory");
+/**
+ * Show a UI that allows transferring inventory items between locations,
+ * optionally linked to parcel lots. Includes per-row parcel and quantity inputs.
+ *
+ * @component
+ * @returns {JSX.Element}
+ */
+export function TransferItems({ handleClose }: { handleClose?: () => void }): JSX.Element {
+    const {
+        selects,
+        rowSelections,
+        handleParcelSelectChange,
+        handleTransferOfItems,
+        rowQuantity,
+        onSiteQuantity,
+        setFromLocation,
+        setToLocation,
+        setToParcel,
+        transferDisabled,
+        setRowAmount,
+        removeItem,
+        transferList,
+        locations,
+        parcelData,
+        transferResults,
+        transferResultsColor
+    } = useTransferItems({ db: 'Inventory' });
 
-    const transferList = useMemo(() => {
-        if (selectedRowIds.length === 0) return []
-        const f = selectedRowIds.map(id => data?.find(d => d._id === id))
-        return f
 
-    }, [selectedRowIds, data, parcelData])
+    console.log(rowSelections)
 
-    const rowQuantity = (row: BulkInventoryItem | undefined) => {
-        if (!row) return 0
-        const qtyAtLoc = row.quantity.byLocation.find(l => l.loc === selects.from)
-        return qtyAtLoc ? qtyAtLoc.qty : 0
-    }
+    const StatusIcon = ({ row }: { row: BulkInventoryItem }) => {
+        if (transferResults !== undefined) {
+            const resultForRow = transferResults.result.find((t) => Number(t.rowId) === row._id)
+            if (!resultForRow || resultForRow.status === 'skipped') {
+                return <IconExclamationCircleFilled size={36} color='red' />;
+            }
+            return <IconCircleCheckFilled size={36} color='green' />;
+        }
+        return <CloseButton size={36} onClick={() => removeItem(row._id)} />;
+    };
 
-    const onSiteQuantity = (row: BulkInventoryItem | undefined) => {
-        const parcel = parcelData?.find(p => p.parcelLot === selects.parcel)
-        if (!row || !parcel) return ''
-        const parcelQty = parcel.billOfMaterial.find(b => b.inventory_id === row._id)
-        return parcelQty ? `${parcelQty.actual}/${parcelQty.required ? parcelQty.required : '0'}` : '0/0'
-    }
-    console.log(selectedRowIds, locations)
-    console.log(data, parcelData)
     return (
         <>
-            <Grid>
+            <Grid mb="0" pb="0">
                 <Grid.Col span={3}>
-                    <Select label='From' title='From' value={selects.from} data={['Chuck', 'Office']} onChange={(e) => setSelects({ ...selects, from: e })} />
-                </Grid.Col>
-                <Grid.Col span={5}>
-                    <Select label='To' title='To' value={selects.to}
-                        data={locations?.Locations.filter(l => !l.hide && l.id === undefined).map(l => l.Name)}
-                        onChange={(e) => setSelects({ ...selects, to: e, parcel: null })}
+                    <Select
+                        label="From"
+                        title="From"
+                        value={selects.locationOfInventory}
+                        data={["Chuck", "Office"]}
+                        onChange={setFromLocation}
                     />
                 </Grid.Col>
-                <Grid.Col span={4}>
-                    <Select label='Parcel' title='Parcel' value={selects.parcel}
-                        data={['All', ...(parcelData?.filter(p => p.subdivision_id === selects.to).map(p => p.parcelLot) ?? [])]}
-                        onChange={(e) => setSelects({ ...selects, parcel: e })}
+                <Grid.Col span={3}>
+                    <Select
+                        label="To"
+                        title="To"
+                        value={selects.locationOfParcel}
+                        data={
+                            locations?.Locations
+                                .filter(l => !l.hide && l.id === undefined && l.Name !== selects.locationOfInventory)
+                                .map(l => l.Name)
+                        }
+                        onChange={setToLocation}
                     />
+                </Grid.Col>
+                <Grid.Col span={3}>
+                    <Select
+                        label="Parcel"
+                        title="Parcel"
+                        value={selects.parcel}
+                        data={[
+                            "All",
+                            ...(parcelData?.filter(p => p.subdivision_id === selects.locationOfParcel).map(p => p.parcelLot) ?? []),
+                        ]}
+                        onChange={setToParcel}
+                    />
+                </Grid.Col>
+                <Grid.Col span={3}>
+                    {transferResults === undefined ?
+                        <Button
+                            w="100%"
+                            disabled={transferDisabled()}
+                            rightSection={<IconTruck size={14} />}
+                            mt="1.5rem"
+                            onClick={() => handleTransferOfItems()}
+                        >
+                            Transfer
+                        </Button>
+                        :
+                        <Button
+                            w="100%"
+                            variant='light'
+                            color={transferResultsColor()}
+                            // rightSection={<IconTruck size={14} />}
+                            mt="1.5rem"
+                            onClick={handleClose}
+                        >
+                            Close
+                        </Button>
+                    }
                 </Grid.Col>
             </Grid>
-            <Table.ScrollContainer minWidth={500} maxHeight={500}>
+            <Table.ScrollContainer minWidth={500} maxHeight={500} mt="xs">
                 <Table
                     striped
                     highlightOnHover
@@ -64,7 +121,7 @@ export function TransferItems() {
                     <Table.Thead>
                         <Table.Tr>
                             <Table.Th>Item</Table.Th>
-                            <Table.Th>Quantity</Table.Th>
+                            <Table.Th>Available</Table.Th>
                             <Table.Th>Parcel</Table.Th>
                             <Table.Th>OnSite</Table.Th>
                             <Table.Th>Amount</Table.Th>
@@ -72,44 +129,51 @@ export function TransferItems() {
                     </Table.Thead>
                     <Table.Tbody>
                         {transferList.length === 0 ? (
-                            // No data row
                             <Table.Tr>
-                                <Table.Td colSpan={4} style={{ textAlign: "center" }}>
+                                <Table.Td colSpan={5} style={{ textAlign: "center" }}>
                                     No data
                                 </Table.Td>
                             </Table.Tr>
                         ) : (
-                            // Render each row of data
-                            transferList.filter(f => f !== undefined).map((row, i) => (
-                                <Table.Tr
-                                    key={i}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    <Table.Td >
-                                        {row.title}
-                                    </Table.Td>
-                                    <Table.Td >
-                                        {rowQuantity(row)}
-                                    </Table.Td>
-                                    <Table.Td >
-                                        <Select label='Parcel' title='Parcel' value={selects.parcel}
-                                            data={['All', ...(parcelData?.filter(p => p.subdivision_id === selects.to).map(p => p.parcelLot) ?? [])]}
-                                            onChange={(e) => setSelects({ ...selects, parcel: e })}
-                                        />
-                                    </Table.Td>
-                                    <Table.Td >
-                                        {onSiteQuantity(row)}
-                                    </Table.Td>
-                                    <Table.Td >
-                                        <NumberInput />
-                                    </Table.Td>
-                                </Table.Tr>
-                            ))
+                            transferList
+                                .filter(row => row !== undefined)
+                                .map(row => (
+                                    <Table.Tr key={row._id} style={{ cursor: "pointer" }}>
+                                        <Table.Td>{row.title}</Table.Td>
+                                        <Table.Td>{rowQuantity(row)}</Table.Td>
+                                        <Table.Td>
+                                            <Select
+                                                value={rowSelections[row._id].parcel || null}
+                                                data={[
+                                                    "All",
+                                                    ...(parcelData?.filter(p => p.subdivision_id === selects.locationOfParcel).map(p => p.parcelLot) ?? [])
+                                                ]}
+                                                onChange={val => handleParcelSelectChange(row._id, val)}
+                                            />
+                                        </Table.Td>
+                                        <Table.Td>{onSiteQuantity(row)}</Table.Td>
+                                        <Table.Td>
+                                            <Flex>
+                                                <NumberInput
+                                                    value={rowSelections[row._id].amount ?? ''}
+                                                    min={0}
+                                                    error={
+                                                        numberError(rowSelections[row._id].amount, rowQuantity(row))
+                                                    }
+                                                    onChange={v =>
+                                                        /* use this event to also update the row title */
+                                                        setRowAmount(row._id, typeof v === "number" ? v : 0, row.title)
+                                                    }
+                                                />
+                                                <StatusIcon row={row} />
+                                            </Flex>
+                                        </Table.Td>
+                                    </Table.Tr>
+                                ))
                         )}
                     </Table.Tbody>
                 </Table>
             </Table.ScrollContainer>
-
         </>
-    )
+    );
 }

@@ -1,6 +1,6 @@
 import { Divider, Table, Text } from "@mantine/core";
 import { useResourceData } from "../../../../stores";
-import type { ParcelInventoryType } from "..";
+import type { ParcelInventoryType } from "../../../../types/parcelInventory";
 
 interface ParcelInventoryProps {
   inventory_id: string | number

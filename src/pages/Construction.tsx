@@ -27,10 +27,18 @@ export function Construction({ category }: { category: string }) {
       col: 'ParcelInventory',
       refreshRate: 10000
     });
+    create({
+      id: "palletInventory",
+      apiUrl: `${import.meta.env.VITE_DATABASE_API}/mongoDB`,
+      db: 'Construction',
+      col: 'Pallets',
+      refreshRate: 10000
+    });
     return () => {
       console.log('return')
       release("inventory")
       release("parcelInventory")
+      release("palletInventory")
     }
   }, [])
 
