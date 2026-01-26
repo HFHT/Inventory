@@ -14,7 +14,7 @@ export function mergePalletContents(
 ): BasePallet {
     // Make a shallow copy of dbPallet and a deep copy of its contents
     const result: BasePallet = {
-        ...dbPallet,
+        ...dbPallet, dateCreated: apiPallet.dateCreated, description: apiPallet.description,
         contents: dbPallet.contents.map(item => ({ ...item }))
     };
 

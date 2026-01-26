@@ -8,11 +8,12 @@ import { EditItem, TransferItems, PalletizeItems } from '../features/constructio
 import { uniqueKey } from '../utils';
 
 export function Construction({ category }: { category: string }) {
-  const { create, release } = useDataResource();
+  const { create } = useDataResource();
   const { data, reload } = useResourceData<BulkInventoryItem[]>("inventory");
 
   console.log(category)
   useEffect(() => {
+    console.log('create resources, construction')
     create({
       id: "inventory",
       apiUrl: `${import.meta.env.VITE_DATABASE_API}/mongoDB`,
@@ -34,12 +35,6 @@ export function Construction({ category }: { category: string }) {
       col: 'Pallets',
       refreshRate: 10000
     });
-    return () => {
-      console.log('return')
-      release("inventory")
-      release("parcelInventory")
-      release("palletInventory")
-    }
   }, [])
 
   const columns: TableColumnHeader[] = useMemo(() => [
@@ -99,6 +94,7 @@ export function Construction({ category }: { category: string }) {
         rows={filteredByCategoryData}
         emptyRow={emptyRow}
         reload={reload}
+        ribbonControls={{ pallet: true }}
         drawerTitle='Edit Inventory Item'
         // modalTitle='Transfer Inventory Item(s)'
         modals={modals}

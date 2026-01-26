@@ -45,6 +45,7 @@ type ResourcesStore = {
     resources: Record<string, DataResource<any>>;
     setResource: (id: string, resource: DataResource<any>) => void;
     removeResource: (id: string) => void;
+    clearResources: () => void;
     isEditing: boolean;
     setIsEditing: (editing: boolean) => void;
     toggleIsEditing: () => void;
@@ -59,8 +60,10 @@ export const useDataResourcesStore = create<ResourcesStore>((set) => ({
     removeResource: (id) =>
         set((state) => {
             const { [id]: _, ...rest } = state.resources;
+            console.log('removeResource', id, rest)
             return { resources: rest };
         }),
+    clearResources: () => set(() => ({ resources: {} })),
     isEditing: false,
     setIsEditing: (editing: boolean) => set(() => ({ isEditing: editing })),
     toggleIsEditing: () => set((state) => ({ isEditing: !state.isEditing }))
@@ -81,12 +84,15 @@ async function fetchResource<T>(config: DataResourceConfig): Promise<T> {
 //... Put/POST/DELETE functions omitted for brevity. Implement as needed.
 
 export function useDataResource() {
-    const { resources, setResource, removeResource, isEditing } = useDataResourcesStore();
+    const { resources, setResource, removeResource, clearResources, isEditing } = useDataResourcesStore();
     /**
      * Create a new data resource and start its refresh timer.
      */
     function create<T>(config: DataResourceConfig) {
-        if (resources[config.id]) return; // already exists
+        console.log('create', config.id, resources)
+        // release(config.id);
+        // console.log('createAfter', resources[config.id])
+        if (resources[config.id]) { console.log('exists'); return }; // already exists
 
         let intervalId: number | undefined;
 
@@ -135,7 +141,7 @@ export function useDataResource() {
         //     load();
         // }, config.refreshRate);
 
-        // Save resource/store intervalId
+        // Save intervalId and set loading status since the load is async
         setResource(config.id, {
             config,
             data: null,
@@ -181,13 +187,14 @@ export function useDataResource() {
      */
     function release(id: string) {
         const resource = resources[id];
+        console.log('release', id, resource?.intervalId,)
         if (resource?.intervalId) {
             clearInterval(resource.intervalId);
         }
         removeResource(id);
     }
 
-    return { resources, create, changeRefreshRate, release, isEditing };
+    return { resources, create, changeRefreshRate, release, clearResources, isEditing };
 }
 
 /**

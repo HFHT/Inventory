@@ -2,7 +2,7 @@
 import { Divider, Drawer } from '@mantine/core';
 import { PageControls, Filter, Viewer, Ribbon, Overlay } from '../components/table';
 import type { ViewerDbRowTypes, ViewerDbTypes } from '../types';
-import type { TableColumnHeader } from '../components/table/types';
+import type { RibbonControls, TableColumnHeader } from '../components/table/types';
 import { useRibbon, useTable } from '../components/table/hooks';
 import { useEffect, useState, type JSX, type ReactNode } from 'react';
 import { DrawerLayout } from './DrawerLayout';
@@ -25,6 +25,7 @@ interface TableLayoutProps {
   emptyRow: ViewerDbRowTypes;
   reload: () => void;
   drawerTitle?: string;
+  ribbonControls?: RibbonControls;
   // modalTitle?: string;
   children?: ReactNode;
   modals?: {
@@ -63,6 +64,7 @@ export function TableLayout({
   emptyRow,
   reload,
   drawerTitle,
+  ribbonControls,
   // modalTitle,
   children,
   modals,
@@ -114,7 +116,7 @@ export function TableLayout({
     emptyRow: emptyRow,
     reload: reload,
     openDrawer: openDrawer,
-    controls: { add: true, transfer: true, pallet: true, refresh: true, export: true, import: true, filter: true },
+    controls: { add: true, transfer: true, refresh: true, export: true, import: true, filter: true, ...ribbonControls },
     mode: table.control.mode,
     setMode: table.control.setMode,
     handleClose: table.control.handleClose,

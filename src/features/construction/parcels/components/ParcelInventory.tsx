@@ -22,13 +22,13 @@ export function ParcelInventory({ inventory_id }: ParcelInventoryProps) {
       <Divider mt={10} mb={6} size='sm' labelPosition='left'
         label={<Text size='sm'>Inventory by Parcel</Text>}
       />
-      <Table striped highlightOnHover>
+      <Table highlightOnHover>
         <Table.Thead>
           <Table.Tr>
+            <Table.Th>Parcel</Table.Th>
             <Table.Th>Current</Table.Th>
             <Table.Th>Desired</Table.Th>
             <Table.Th>Difference</Table.Th>
-            <Table.Th>Parcel</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
@@ -37,10 +37,10 @@ export function ParcelInventory({ inventory_id }: ParcelInventoryProps) {
               .filter(b => b.inventory_id === inventory_id)
               .map((bom) => (
                 <Table.Tr key={`${parcel._id}-${bom.inventory_id}`}>
+                  <Table.Td>{parcel.parcelLot}</Table.Td>
                   <Table.Td>{bom.actual}</Table.Td>
                   <Table.Td>{bom.required}</Table.Td>
                   <Table.Td>{bom.actual - Number(bom.required)}</Table.Td>
-                  <Table.Td>{parcel.parcelLot}</Table.Td>
                 </Table.Tr>
               ))
           )}

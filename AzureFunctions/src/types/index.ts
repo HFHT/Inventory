@@ -10,6 +10,7 @@ export type InventoryLocation = {
     Name: string;
     lat: number;
     lon: number;
+    warehouse?: boolean;
     Org?: any;
     hide?: boolean;
 };
@@ -87,8 +88,8 @@ export interface BasePallet {
     description: string
     dateCreated: string;
     dateShipped: string;
-    fromLocation: string;
-    toLocation: string;
+    dateUnloaded: string;
+    location: string;
     contents: PalletContents[];
     archived: boolean;
 }

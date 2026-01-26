@@ -17,6 +17,7 @@ export type TransferSelects = {
     controllingDB: string;
     locationOfInventory: string;
     locationOfParcel: string;
+    type: 'pallet' | 'inventory';
     parcel: string;
 };
 
@@ -94,6 +95,23 @@ export async function transferItems(
             return errorResponse(400, "No items provided for transfer.");
         }
 
+        if (controls.type === 'pallet') {
+            return errorResponse(400, "Pallet transfer not implemented.");
+        }
+
+        /**
+         * pallet processing, for each pallet 
+         * update Pallets collection dateShipped and location
+         * update the ParcelInventory collection pallets array
+         * - add to parcel 
+         * - handle the case where it moves from one parcel to another (remove and add)
+         * - handle the case where it is returned to a warehouse (remove from parcel)
+         */
+
+
+
+
+
         client = new MongoClient(process.env.ATLAS_URI);
         await client.connect();
 
@@ -116,8 +134,7 @@ export async function transferItems(
             return errorResponse(404, `Location "${controls.locationOfParcel}" not found.`);
         }
 
-        const isWarehouse = !!location.Org;
-        context.log("warehouse", isWarehouse);
+        context.log("warehouse", location.warehouse);
 
         /** @type {any[]} */
         const results: any[] = [];
@@ -125,7 +142,7 @@ export async function transferItems(
         // Iterate over each inventory item to transfer
         for (const [rowId, rowSelection] of Object.entries(items)) {
             /** Validate transfer amount. */
-            if (!rowSelection.amount || typeof rowSelection.amount !== "number" ) {
+            if (!rowSelection.amount || typeof rowSelection.amount !== "number") {
                 context.log(`Invalid amount for rowId ${rowId}`);
                 results.push({ rowId, status: "skipped", reason: "Invalid amount" });
                 continue;
@@ -148,7 +165,7 @@ export async function transferItems(
                     continue;
                 }
 
-                if (isWarehouse) {
+                if (location.warehouse) {
                     // --- Warehouse transfer (updates only locations in Inventory) ---
                     /** @type {import("mongodb").UpdateResult} */
                     const updateRes = await inventoryCol.updateOne(

@@ -4,9 +4,9 @@ import { HomePage } from "../pages";
 /**
  * Describes the navigation state.
  */
-export type NavItem = 
-  | { label: string; key: string; page: ReactElement; children?: never }
-  | { label: string; key: string; page?: never; children: NavItem[] };
+export type NavItem =
+  | { label: string; key: string; page: ReactElement; children?: never; section?: boolean, filter?: string }
+  | { label: string; key: string; page?: never; children: NavItem[]; section?: boolean, filter?: string };
 
 
 /**

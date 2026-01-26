@@ -8,10 +8,18 @@ export interface BasePallet {
     description: string
     dateCreated: string;
     dateShipped: string;
-    fromLocation: string;
-    toLocation: string;
+    dateUnloaded: string;
+    location: string;
     contents: PalletContents[];
     archived: boolean;
+    images: PalletImages;
+}
+/** Represents images of the pallet.
+ * @interface
+ */
+export interface PalletImages {
+    urls: string[];
+    favorite: string | null;
 }
 
 /**

@@ -1,9 +1,8 @@
-import { NavLink, ScrollArea, Stack } from "@mantine/core";
-import { useNavigationStore } from "../../../stores";
-import type { NavItem, NavStructure } from "./types";
+import { Divider, NavLink, ScrollArea, Stack } from "@mantine/core";
+import { useNavigationStore, type NavItem} from "../../../stores";
 
 interface MainNavbarProps {
-    navigationTree: NavStructure
+    navigationTree: NavItem[]
     navHeight: number
     toggle: () => void
 }
@@ -21,12 +20,15 @@ export function Navbar({ navigationTree, navHeight, toggle }: MainNavbarProps) {
                     item.children ? (
                         <NavLink key={item.label} label={item.label} childrenOffset={12}>
                             {item.children.map((child: any) => (
-                                <NavLink
-                                    key={child.label}
-                                    label={child.label}
-                                    active={navigation.key === child.key}
-                                    onClick={() => handleNavClick(child)}
-                                />
+                                <div key={child.label}>
+                                    {child.section === true && <Divider />}
+                                    <NavLink
+                                        key={child.label}
+                                        label={child.label}
+                                        active={navigation.key === child.key}
+                                        onClick={() => handleNavClick(child)}
+                                    />
+                                </div>
                             ))}
                         </NavLink>
                     ) : (

@@ -1,3 +1,7 @@
+/** @deprecated 
+ * 
+ * Transfer can no longer be done from the inventory page.
+*/
 import { Button, Checkbox, Grid, NumberInput, Select, Tooltip } from "@mantine/core"
 import { useMemo, useState } from "react"
 

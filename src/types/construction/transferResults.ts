@@ -44,6 +44,7 @@ export type TransferResult =
 
 /** Array of transfer results */
 export type TransferResults = {
-    data: any
+    data?: any
     result: TransferResult[]
+    pallet?: any
 }

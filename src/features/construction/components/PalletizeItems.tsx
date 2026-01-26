@@ -1,10 +1,12 @@
-import { Autocomplete, Button, CloseButton, Divider, Flex, Grid, NumberInput, ScrollArea, Select, Table, Text, Textarea } from "@mantine/core";
+import { Autocomplete, Button, Divider, Fieldset, Flex, Grid, Image, NumberInput, ScrollArea, Select, Table, Text, Textarea } from "@mantine/core";
 import { DateInput } from '@mantine/dates';
-import type { BulkInventoryItem } from "../../../types/construction";
 import { usePalletizeItems } from "../hooks";
-import { IconCircleCheckFilled, IconExclamationCircleFilled, IconStackPush } from "@tabler/icons-react";
+import { IconStackPush } from "@tabler/icons-react";
 import { useScrollAreaHeight } from "../../../hooks/browser";
 import { numberError } from "../../../utils";
+import { imageObj } from "../../../components/form";
+import { RowAmount, StatusIcon } from ".";
+import type { BulkInventoryItem } from "../../../types/construction";
 
 export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
   // Select pallet or new. If new then get a name and current location default to CHUCK. Once selected add the selected items.
@@ -31,14 +33,16 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
     havePalletInfo,
     onPalletQuantity,
     palletList,
-    nextStep
-  } = usePalletizeItems({ db: 'Inventory' });
+    nextStep,
+    duplicatePalletName,
+    favoriteImage
+  } = usePalletizeItems({ db: 'Inventory', type: 'inventory' });
 
   const ControlButton = () => {
     if (!havePalletInfo) {
       return <Button
         w="100%"
-        disabled={selectedPalletName === '' || selects.locationOfInventory === null}
+        disabled={selectedPalletName === '' || selects.locationOfInventory === null /*|| duplicatePalletName()*/}
         // rightSection={<IconTruck size={14} />}
         mt="1.5rem"
         onClick={nextStep}
@@ -68,24 +72,30 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
       Close
     </Button>
   }
-  const StatusIcon = ({ row }: { row: BulkInventoryItem }) => {
-    if (transferResults !== undefined) {
-      const resultForRow = transferResults.result.find((t) => Number(t.rowId) === row._id)
-      if (!resultForRow || resultForRow.status === 'skipped') {
-        return <IconExclamationCircleFilled size={36} color='red' />;
-      }
-      return <IconCircleCheckFilled size={36} color='green' />;
-    }
-    return <CloseButton size={36} onClick={() => removeItem(row._id)} />;
-  };
+
+  const barcodeList = (row: BulkInventoryItem | undefined) => {
+    if (!row || !row.barcodes) return ['(none)']
+    return ['(none)', ...row.barcodes]
+  }
+
   return (
     <>
       <Grid mb="0" pb="0">
-        <Grid.Col span={6}>
+        <Grid.Col span={1}>
+          <Image src={favoriteImage} h={60} w='auto' fit='contain' fallbackSrc='https://hfhtdev.blob.core.windows.net/production/brokenImage.jpg' />
+        </Grid.Col>
+        <Grid.Col span={5}>
           <Autocomplete
             label="Select or Create a Pallet"
             placeholder="Select or Enter a name for a new pallet."
             data={palletList}
+            // error={duplicatePalletName() ? 'Name exists' : false}
+            // errorProps={{
+            //   style: {
+            //     marginTop: '-60px', // Moves the error up by 60px
+            //     textAlign: 'right', // Aligns the error text to the right
+            //   }
+            // }}
             maxDropdownHeight={200}
             clearable
             onChange={(v) => setSelectedPalletName(v)}
@@ -106,7 +116,7 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
         </Grid.Col>
       </Grid>
       {havePalletInfo &&
-        <>
+        <Fieldset disabled={transferResults !== undefined}>
           <Textarea label='Pallet description' placeholder='...description'
             value={selectedPallet?.description}
             onChange={(e) => setSelectedPallet({ ...selectedPallet, description: e.currentTarget.value })}
@@ -114,7 +124,7 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
           <DateInput
             value={selectedPallet?.dateCreated}
             onChange={(v) => setSelectedPallet({ ...selectedPallet, dateCreated: v ?? '' })}
-            clearable
+            clearable highlightToday
             label='Date created'
             placeholder='...Date'
           />
@@ -151,11 +161,11 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
                     .map(row => (
                       <Table.Tr key={row._id} style={{ cursor: "pointer" }}>
                         <Table.Td>{row.title}</Table.Td>
-                        <Table.Td>{rowQuantity(row)}</Table.Td>
+                        <Table.Td><RowAmount row={row} rowAmount={rowQuantity(row)} rowAdjust={rowSelections[row._id].amount} transferResults={transferResults}/></Table.Td>
                         <Table.Td>
                           <Select
                             value={rowSelections[row._id].SKU || null}
-                            data={['(none)', ...row.barcodes]}
+                            data={barcodeList(row)}
                             onChange={val =>
                               setRowSKU(row._id, val ?? undefined)
                             }
@@ -176,7 +186,7 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
                                 handleParcelSelectChange(row._id, 'pallet');
                               }}
                             />
-                            <StatusIcon row={row} />
+                            <StatusIcon row={row} transferResults={transferResults} removeItem={() => removeItem(row._id)} />
                           </Flex>
                         </Table.Td>
                       </Table.Tr>
@@ -222,7 +232,7 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
               </Table.Tbody>
             </Table>
           </ScrollArea>
-        </>
+        </Fieldset>
       }
     </>
   )

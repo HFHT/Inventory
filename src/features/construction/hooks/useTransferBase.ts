@@ -3,6 +3,7 @@ import { useTableSelectionStore } from "../../../components/table/stores/tableSt
 import { useLocations, useResourceData } from "../../../stores";
 import type { BulkInventoryItem, TransferResults } from "../../../types/construction";
 import type { ParcelInventoryType } from "../../../types/parcelInventory";
+import { sumRequiredAndActualBySubdivision } from "../utils";
 
 /**
  * Shared row/selection/location/parcel data and logic. Used by:
@@ -44,13 +45,14 @@ type RowSelections = Record<string, RowSelection>;
 
 type UseTransferBaseProps = {
     db: string;
+    type: 'pallet' | 'inventory'
 };
 
 /**
  * Shared base logic for both transfer and palletize flows.
  * @returns {object} Shared state, actions, helpers
  */
-export function useTransferBase({ db }: UseTransferBaseProps) {
+export function useTransferBase({ db, type }: UseTransferBaseProps) {
     /** Main selects: source, destination, parcel. */
     const [selects, setSelects] = useState<TransferSelects>({
         locationOfInventory: "Chuck",
@@ -85,10 +87,15 @@ export function useTransferBase({ db }: UseTransferBaseProps) {
     /** Resource data for main, parcel, and pallet. */
     const { data, reload: reloadInventory } = useResourceData<BulkInventoryItem[]>("inventory");
     const { data: parcelData, reload: reloadParcel } = useResourceData<ParcelInventoryType[]>("parcelInventory");
+    const { data: palletData, reload: reloadPallet } = useResourceData<BulkInventoryItem[]>("palletInventory");
 
     /** Transfer list: inventory items for selected rows. */
     const transferList = useMemo(() => {
+        console.log(type, palletData)
         if (selectedRowIds.length === 0) return [];
+        if (type === 'pallet') {
+            return selectedRowIds.map((id) => palletData?.find((d) => d._id === id));
+        }
         return selectedRowIds.map((id) => data?.find((d) => d._id === id));
     }, [selectedRowIds, data, parcelData]);
 
@@ -125,14 +132,25 @@ export function useTransferBase({ db }: UseTransferBaseProps) {
     }
 
     function rowQuantity(row: BulkInventoryItem | undefined): number {
-        if (!row) return 0;
+        if (!row || type === 'pallet') return 0;
         const qtyAtLoc = row.quantity.byLocation.find((l) => l.loc === selects.locationOfInventory);
         return qtyAtLoc ? qtyAtLoc.qty : 0;
     }
 
     function onSiteQuantity(row: BulkInventoryItem | undefined): string {
+        console.log(row, selects, type)
+        const loc = locations.Locations.find((l) => l.Name === selects.locationOfParcel)
+        if (!row) throw new Error('onSiteQuantity, row not provided')
+        if (loc && loc.warehouse) {
+            const qtyAtLoc = row.quantity.byLocation.find((l) => l.loc === loc.Name)
+            return qtyAtLoc ? `${qtyAtLoc.qty}` : "0";
+        }
+        if (selects.parcel === 'All') {
+            const { required, actual } = sumRequiredAndActualBySubdivision(parcelData, selects.locationOfParcel, row._id)
+            return `${actual} of ${required}`
+        }
         const parcel = parcelData?.find((p) => p.parcelLot === selects.parcel);
-        if (!row || !parcel) return "";
+        if (!row || !parcel || type === 'pallet') return "";
         const parcelQty = parcel.billOfMaterial.find((b) => b.inventory_id === row._id);
         return parcelQty ? `${parcelQty.actual} of ${parcelQty.required ? parcelQty.required : "0"}` : "0 of 0";
     }
@@ -157,7 +175,7 @@ export function useTransferBase({ db }: UseTransferBaseProps) {
                     updated[row._id] = {
                         ...updated[row._id],
                         parcel: v,
-                        amount: updated[row._id]?.amount ?? null,
+                        amount: updated[row._id]?.amount ?? (type === 'pallet') ? 1 : null,
                     };
                 }
             });
@@ -207,6 +225,7 @@ export function useTransferBase({ db }: UseTransferBaseProps) {
         setTransferResults,
         reloadInventory,
         reloadParcel,
+        reloadPallet,
         transferResultsColor,
     };
 }

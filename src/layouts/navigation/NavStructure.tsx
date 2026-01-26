@@ -1,4 +1,4 @@
-import { Actions, Construction, HomeBuyers, HomePage, Homes, OfficeMain, UserSettings } from '../../pages'
+import { Actions, Construction, HomeBuyers, HomePage, Homes, OfficeMain, Pallet, UserSettings } from '../../pages'
 import type { NavItem } from '../../stores';
 
 /**
@@ -91,20 +91,22 @@ export const navStructure: NavItem[] = [
                 page: <Construction category='Supplies' />
             },
             {
+                label: 'Windows',
+                key: 'Windows',
+                page: <Construction category='Windows' />
+            },
+            {
                 label: 'Assemblies',
                 key: 'Assemblies',
+                section: true,
                 page: <Construction category='Assemblies' />
             },
             {
                 label: 'Pallet',
                 key: 'Pallet',
-                page: <Construction category='Pallet' />
+                page: <Pallet />
             },
-            {
-                label: 'Windows',
-                key: 'Windows',
-                page: <Construction category='Windows' />
-            },
+
         ]
     },
 
@@ -117,9 +119,9 @@ export const navStructure: NavItem[] = [
         children: []
     },
 
-        /**
-     * Actions section: scan, palletize, receipts, inventory.
-     */
+    /**
+ * Actions section: scan, palletize, receipts, inventory.
+ */
     {
         label: 'Actions',
         key: 'Actions',
@@ -146,7 +148,7 @@ export const navStructure: NavItem[] = [
             },
         ],
     },
-    
+
     /*
     // Example for future Home Models section:
     // {

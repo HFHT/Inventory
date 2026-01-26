@@ -1,9 +1,8 @@
-import { Button, Fieldset, Flex, Grid, NumberInput, Select, Table } from "@mantine/core";
-import { IconTruck } from "@tabler/icons-react";
+import { Button, CloseButton, Fieldset, Flex, Grid, Select, Table } from "@mantine/core";
+import { IconCircleCheckFilled, IconExclamationCircleFilled, IconTruck } from "@tabler/icons-react";
 import { useTransferItems } from "../hooks";
 import type { JSX } from "react";
-import { numberError } from "../../../utils";
-import { RowAmount, StatusIcon } from ".";
+import type { BulkInventoryItem } from "../../../types/construction";
 
 /**
  * Show a UI that allows transferring inventory items between locations,
@@ -12,28 +11,37 @@ import { RowAmount, StatusIcon } from ".";
  * @component
  * @returns {JSX.Element}
  */
-export function TransferItems({ handleClose }: { handleClose?: () => void }): JSX.Element {
+export function TransferPallet({ handleClose }: { handleClose?: () => void }): JSX.Element {
     const {
         selects,
         rowSelections,
         handleParcelSelectChange,
         handleTransferOfItems,
-        rowQuantity,
-        onSiteQuantity,
         setFromLocation,
         setToLocation,
         setToParcel,
         transferDisabled,
-        setRowAmount,
         removeItem,
         transferList,
         locations,
         parcelData,
         transferResults,
         transferResultsColor
-    } = useTransferItems({ db: 'Inventory', type: 'inventory' });
+    } = useTransferItems({ db: 'Inventory', type: 'pallet' });
+
 
     console.log(rowSelections)
+
+    const StatusIcon = ({ row }: { row: BulkInventoryItem }) => {
+        if (transferResults !== undefined) {
+            const resultForRow = transferResults.result.find((t) => Number(t.rowId) === row._id)
+            if (!resultForRow || resultForRow.status === 'skipped') {
+                return <IconExclamationCircleFilled size={36} color='red' />;
+            }
+            return <IconCircleCheckFilled size={36} color='green' />;
+        }
+        return <CloseButton size={36} onClick={() => removeItem(row._id)} />;
+    };
 
     return (
         <>
@@ -109,11 +117,8 @@ export function TransferItems({ handleClose }: { handleClose?: () => void }): JS
                     >
                         <Table.Thead>
                             <Table.Tr>
-                                <Table.Th>Item</Table.Th>
-                                <Table.Th>Available</Table.Th>
+                                <Table.Th>Pallet</Table.Th>
                                 <Table.Th>Parcel</Table.Th>
-                                <Table.Th>OnSite</Table.Th>
-                                <Table.Th>Amount</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
@@ -129,32 +134,19 @@ export function TransferItems({ handleClose }: { handleClose?: () => void }): JS
                                     .map(row => (
                                         <Table.Tr key={row._id} style={{ cursor: "pointer" }}>
                                             <Table.Td>{row.title}</Table.Td>
-                                            <Table.Td><RowAmount row={row} rowAmount={rowQuantity(row)} rowAdjust={rowSelections[row._id].amount} transferResults={transferResults}/></Table.Td>
-                                            <Table.Td>
-                                                <Select
-                                                    value={rowSelections[row._id].parcel || null}
-                                                    data={[
-                                                        "All",
-                                                        ...(parcelData?.filter(p => p.subdivision_id === selects.locationOfParcel).map(p => p.parcelLot) ?? [])
-                                                    ]}
-                                                    onChange={val => handleParcelSelectChange(row._id, val)}
-                                                />
-                                            </Table.Td>
-                                            <Table.Td>{onSiteQuantity(row)}</Table.Td>
                                             <Table.Td>
                                                 <Flex>
-                                                    <NumberInput
-                                                        value={rowSelections[row._id].amount ?? ''}
-                                                        min={0}
-                                                        error={
-                                                            numberError(rowSelections[row._id].amount, rowQuantity(row))
-                                                        }
-                                                        onChange={v =>
-                                                            /* use this event to also update the row title */
-                                                            setRowAmount(row._id, typeof v === "number" ? v : 0, row.title)
-                                                        }
+                                                    <Select
+                                                        value={rowSelections[row._id].parcel || null}
+                                                        data={[
+                                                            "All",
+                                                            ...(parcelData?.filter(p => p.subdivision_id === selects.locationOfParcel).map(p => p.parcelLot) ?? [])
+                                                        ]}
+                                                        onChange={val => {
+                                                            handleParcelSelectChange(row._id, val);
+                                                        }}
                                                     />
-                                                    <StatusIcon row={row} transferResults={transferResults} removeItem={() => removeItem(row._id)} />
+                                                    <StatusIcon row={row} />
                                                 </Flex>
                                             </Table.Td>
                                         </Table.Tr>

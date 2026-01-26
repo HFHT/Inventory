@@ -19,6 +19,7 @@ type Location = {
     Name: string;
     lat: number;
     lon: number;
+    warehouse?: boolean;
     Org?: {Aisle: string; Bay: string}[];
     hide?: boolean;
     id?: string;

@@ -90,7 +90,7 @@ export async function palletizeItems(request: HttpRequest, context: InvocationCo
                             {
                                 _id: inventoryId,
                                 $and: [
-                                    { "quantity.byLocation.loc": items.fromLocation },
+                                    { "quantity.byLocation.loc": items.location },
                                     { "quantity.byLocation.loc": items.title }
                                 ]
                             },
@@ -102,7 +102,7 @@ export async function palletizeItems(request: HttpRequest, context: InvocationCo
                             },
                             {
                                 arrayFilters: [
-                                    { "from.loc": items.fromLocation },
+                                    { "from.loc": items.location },
                                     { "to.loc": items.title }
                                 ],
                                 session
@@ -112,9 +112,9 @@ export async function palletizeItems(request: HttpRequest, context: InvocationCo
                         if (result.matchedCount === 0 || result.modifiedCount === 0) {
                             // Try moving from 'fromLocation', then pushing/creating the pallet location
                             inventoryResponse = await client!.db("Construction").collection<Inventory>("Inventory").updateOne(
-                                { _id: inventoryId, "quantity.byLocation.loc": items.fromLocation },
+                                { _id: inventoryId, "quantity.byLocation.loc": items.location },
                                 { $inc: { "quantity.byLocation.$[from].qty": -content.amount } },
-                                { arrayFilters: [{ "from.loc": items.fromLocation }], session }
+                                { arrayFilters: [{ "from.loc": items.location }], session }
                             );
                             if (inventoryResponse.matchedCount === 0 || inventoryResponse.modifiedCount === 0) {
                                 throw new Error('From location was missing from inventory item');
@@ -168,9 +168,11 @@ export async function palletizeItems(request: HttpRequest, context: InvocationCo
             await session.endSession();
         }
 
+        const data = await client.db("Construction").collection<BasePallet>("Pallets").findOne({ title: items.title });
+
         return {
             status: 200,
-            body: JSON.stringify({ result: results }),
+            body: JSON.stringify({ result: results, pallet: data }),
         };
 
     } catch (error) {

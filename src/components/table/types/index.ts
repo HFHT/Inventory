@@ -67,7 +67,7 @@ export interface TableRibbonType {
     controls?: RibbonControls;
     reload?: () => void;
     onClick?: () => void | undefined;
-    // setTransferMode?: (mode: 'transfer' | 'pallet') => void;
+    setTransferMode?: (mode: 'transfer' | 'palletize' | 'pallet') => void;
     data?: ViewerDbTypes;
 }
 
@@ -92,6 +92,8 @@ export interface RibbonControls {
     add?: boolean;
     transfer?: boolean;
     pallet?: boolean;
+    restock?: boolean;
+    unload?: boolean;
     grid?: boolean;
     undoRedo?: boolean;
     refresh?: boolean;

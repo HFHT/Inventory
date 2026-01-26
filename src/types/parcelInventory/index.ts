@@ -3,11 +3,17 @@ export type ParcelInventoryType = {
     active: boolean
     architecture: ArchitectureType
     billOfMaterial: BillOfMaterialType[]
+    pallets: ParcelPallets[]
     endDate: string
     parcelLot: string
     parcel_id: string
     startDate: string
     subdivision_id: string
+}
+
+export type ParcelPallets = {
+    pallet_id: number | string
+    unloaded: boolean
 }
 
 export type BillOfMaterialType = {
