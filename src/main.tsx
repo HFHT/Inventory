@@ -29,7 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     theme={theme}
     forceColorScheme={window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}
   >
-    <ErrorBoundary FallbackComponent={GenericErrorFallback} onError={() => console.log('Top Level Error Boundary')}>
+    <ErrorBoundary FallbackComponent={GenericErrorFallback} onError={(e, i) => console.log('Top Level Error Boundary', e, i)}>
       <MsalProvider instance={pca}>
         <AuthenticatedTemplate>
           <AzureContextProvider >

@@ -31,17 +31,17 @@ export function filterRowsByFilterType(
 ): ViewerDbTypes {
   if (!filterValue || !filterTypes) return rows;
   const fuzzyResult = fuzzySearch(
-    rows,
+    rows as any[],
     filterValue,
     filterTypes.fuzzy.map((f) => f.accessor)
   );
   const equalResult = startsWithSearch(
-    rows,
+    rows as any[],
     filterValue,
     filterTypes.equal.map((f) => f.accessor)
   );
   const includesResult = includesSearch(
-    rows,
+    rows as any[],
     filterValue,
     filterTypes.includes.map((f) => f.accessor)
   );

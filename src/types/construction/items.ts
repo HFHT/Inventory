@@ -67,6 +67,14 @@ export interface BulkInventoryItem extends BaseInventoryItem {
     byLocation: ByLocation[];
   };
 }
+/**
+ * Represents an new empty inventory item.
+ * @interface
+ * @extends BulkInventoryItem
+ */
+export interface BulkInventoryItemIsNew extends BulkInventoryItem {
+  isNew: boolean;
+}
 
 /**
  * Represents an inventory item with associated serial numbers, SKUs, and barcodes.

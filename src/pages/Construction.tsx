@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { TableLayout } from '../layouts/TableLayout';
 import { useDataResource, useResourceData } from '../stores/dataResourceStore';
-import type { BulkInventoryItem } from '../types/construction';
+import type { BulkInventoryItem, BulkInventoryItemIsNew } from '../types/construction';
 import type { TableColumnHeader } from '../components/table/types';
 import { Title } from '@mantine/core';
 import { EditItem, TransferItems, PalletizeItems } from '../features/construction';
@@ -46,7 +46,7 @@ export function Construction({ category }: { category: string }) {
     { accessor: "_id", label: "ID", filterType: "equal" },
   ], [])
 
-  const emptyRow: BulkInventoryItem = {
+  const emptyRow: BulkInventoryItemIsNew = {
     _id: uniqueKey(),
     barcodes: [],
     pin: false,
@@ -67,7 +67,8 @@ export function Construction({ category }: { category: string }) {
     quantity: {
       total: 0,
       byLocation: [{ loc: 'Chuck', qty: 0 }]
-    }
+    },
+    isNew: true
   }
 
   const filteredByCategoryData = useMemo(() => {
@@ -78,7 +79,7 @@ export function Construction({ category }: { category: string }) {
   const modals = useMemo(() => {
     return [
       { mode: 'transfer', title: 'Transfer Inventory Item(s)', label: 'Transfer', component: <TransferItems /> },
-      { mode: 'pallet', title: 'Pallet Information', label: 'Palletize', component: <PalletizeItems /> }
+      { mode: 'palletize', title: 'Pallet Information', label: 'Palletize', component: <PalletizeItems /> }
     ]
 
   }, [])

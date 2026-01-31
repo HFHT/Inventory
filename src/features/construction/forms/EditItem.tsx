@@ -1,22 +1,25 @@
 import { useForm } from '@mantine/form'
-import type { BulkInventoryItem } from "../../../types/construction";
-import { Accordion, Divider, Grid, Image, ScrollArea, Text, Textarea, TextInput } from '@mantine/core';
-import { DependentNumberInputs, DependentSelect, imageActions, imageObj, QuantityGrid, SaveOrCancel } from '../../../components/form';
+import type { BulkInventoryItem, BulkInventoryItemIsNew } from "../../../types/construction";
+import { Divider, Grid, Image, ScrollArea, Text, Textarea, TextInput } from '@mantine/core';
+import { addFlatArrays, DependentNumberInputs, DependentSelect, imageActions, imageObj, QuantityGrid, reverseFlatArrays, SaveOrCancel } from '../../../components/form';
 import { ImageCarousel } from '../../../components/carousel';
 import { useCategories, useDrawerStore, useEditing, useResourceData, useSelectedRowStore } from '../../../stores';
-import { ParcelInventory, ParcelTransfer, type ParcelTransferQtyTo } from '../parcels/components';
-import { useEffect } from 'react';
+import { ParcelInventory } from '../parcels/components';
+import { useEffect, useMemo } from 'react';
 import { useScrollAreaHeight } from '../../../hooks';
 
-// import type { ViewerDbTypes } from '../types';
+interface BulkInventoryItemIsNewWithFlatArrays extends BulkInventoryItemIsNew {
+  $barcodes: string,
+  $suppliers: string,
+}
 
 export function EditItem() {
   const height = useScrollAreaHeight(200);
 
-  const { update } = useResourceData<BulkInventoryItem[]>("inventory");
+  const { create, update } = useResourceData<BulkInventoryItem[]>("inventory");
 
-  const { data: parcelInventory, update: parcelUpdate } = useResourceData<BulkInventoryItem[]>("parcelInventory");
-  const { isEditing, setIsEditing, toggleIsEditing } = useEditing();
+  const { data: parcelInventory } = useResourceData<BulkInventoryItem[]>("parcelInventory");
+  const { setIsEditing } = useEditing();
   const selectedRow = useSelectedRowStore((state) => state.selectedRow);
   const { closeDrawer } = useDrawerStore();
 
@@ -29,10 +32,10 @@ export function EditItem() {
 
   const categories = useCategories();
   console.log(parcelInventory);
-  const row = selectedRow as BulkInventoryItem
-  const form = useForm<BulkInventoryItem>({
+  const row = selectedRow as BulkInventoryItemIsNew
+  const form = useForm<BulkInventoryItemIsNew>({
     mode: 'uncontrolled',
-    initialValues: row,
+    initialValues: addFlatArrays(row) as BulkInventoryItemIsNewWithFlatArrays,
     onValuesChange: (values) => {
       console.log(values)
     }
@@ -46,8 +49,19 @@ export function EditItem() {
 
   const saveForm = () => {
     console.log('save', form.getValues())
-    update(form.getValues())
+    if (form.getValues().isNew) {
+      const { isNew, ...formValues } = reverseFlatArrays(form.getValues())
+      create(formValues)
+    } else {
+      update(reverseFlatArrays(form.getValues()))
+    }
+    closeDrawer()
   }
+
+  const saveDisabled = useMemo(() => {
+    if (form.getValues().title.length > 3 && form.getValues().select.category && form.getValues().select.subCategory) return false
+    return true
+  }, [form])
 
   const isNew = false;
   console.log('EditItem render', row, categories)
@@ -62,16 +76,22 @@ export function EditItem() {
           <TextInput label='Title' placeholder='' size='sm' withAsterisk key={(form.key('title'))} {...form.getInputProps('title')} />
         </Grid.Col>
         <Grid.Col span={3}>
-          <SaveOrCancel
+          <SaveOrCancel disabled={saveDisabled}
             onSave={saveForm}
             onCancel={closeDrawer}
           />
         </Grid.Col>
       </Grid>
-      <ScrollArea h={height} scrollbars="y"  pr='md'>
+      <ScrollArea h={height} scrollbars="y" pr='md'>
         <Grid grow justify='space-between' align='center' >
           <Grid.Col span={4}>
-            <QuantityGrid values={form.getValues().quantity.byLocation} onChange={(e) => form.setFieldValue('quantity', e)} totalPosition='above' label='Quantity' />
+            <QuantityGrid
+              values={form.getValues().quantity.byLocation}
+              onChange={(e) => form.setFieldValue('quantity', e)}
+              totalPosition='above'
+              label='Quantity'
+              unlocked={form.getValues().isNew}
+            />
           </Grid.Col>
           <Grid.Col span={8}>
             <DependentSelect categories={categories.constructionMenuItems} subMenuLabel='Type'
@@ -81,7 +101,6 @@ export function EditItem() {
             <DependentNumberInputs warnLevels={{ ...form.getValues().warnLevels }}
               onChange={(e) => form.setFieldValue('warnLevels', e)}
             />
-
             <Textarea size='sm' placeholder='barcodes seperated by commas....' autosize minRows={1} label='Barcodes'
               key={(form.key('$barcodes'))}
               {...form.getInputProps('$barcodes')}

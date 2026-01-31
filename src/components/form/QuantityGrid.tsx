@@ -9,18 +9,20 @@ interface LocationQuantityGridProps {
   onChange: (updated: { total: number, byLocation: LocationQuantity[] }) => void;
   totalPosition?: 'above' | 'below';
   label?: string;
+  unlocked?: boolean;
 }
 
 export const QuantityGrid: React.FC<LocationQuantityGridProps> = ({
   values,
   onChange,
   totalPosition = 'below',
+  unlocked = false,
   label,
 }) => {
   // Example: values = {loc1: 1, loc2: 2}
   const total = () => values.reduce((sum, loc) => sum + (loc.qty || 0), 0);
 
-  const [locked, setLocked] = useState(true)
+  const [locked, setLocked] = useState(!unlocked)
   const handleQtyChange = (loc: string, qty: number) => {
     const val = Number.isNaN(qty) || qty == null ? 0 : qty;
     const idx = values.findIndex(f => f.loc === loc)

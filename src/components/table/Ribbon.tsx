@@ -49,7 +49,7 @@ export function Ribbon({
                         {/* {items} */}
                         {controls.add && <Add label='Add' emptyRow={emptyRow} openDrawer={openDrawer} />}
                         {controls.transfer && <Transfer label='Transfer' onClick={() => handleTransferClick('transfer')} />}
-                        {controls.pallet && <Palletize label='Palletize' onClick={() => handleTransferClick('pallet')} />}
+                        {controls.pallet && <Palletize label='Palletize' onClick={() => handleTransferClick('palletize')} />}
                         {controls.restock && <RestockPallet label='Restock' onClick={() => handleTransferClick('restock')} />}
                         {controls.unload && <UnloadPallet label='Unload' onClick={() => handleTransferClick('unload')} />}
                         {controls.grid && (readOnly ? <EmptySlot /> : <Grid label='Grid' />)}

@@ -69,7 +69,9 @@ export const useDataResourcesStore = create<ResourcesStore>((set) => ({
     toggleIsEditing: () => set((state) => ({ isEditing: !state.isEditing }))
 }));
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { useErrorBoundary } from "react-error-boundary";
+import { fetchResponseError } from "../services/fetch";
 // import type { ViewerDbRowTypes } from "../types"; // Only needed for selectedRow
 
 /**
@@ -77,7 +79,7 @@ import { useCallback } from "react";
  */
 async function fetchResource<T>(config: DataResourceConfig): Promise<T> {
     const response = await fetch(`${config.apiUrl}?db=${config.db}&col=${config.col}`, { method: 'GET' });
-    if (!response.ok) throw new Error("Fetch failed");
+    if (!response.ok) throw await fetchResponseError(response, 'Fetch failed');
     return response.json();
 }
 
@@ -85,6 +87,7 @@ async function fetchResource<T>(config: DataResourceConfig): Promise<T> {
 
 export function useDataResource() {
     const { resources, setResource, removeResource, clearResources, isEditing } = useDataResourcesStore();
+    const { showBoundary } = useErrorBoundary();
     /**
      * Create a new data resource and start its refresh timer.
      */
@@ -120,6 +123,7 @@ export function useDataResource() {
                     intervalId,
                 });
             } catch (e: any) {
+                showBoundary(`Load failed: ${e}`)
                 setResource(config.id, {
                     config,
                     data: null,
@@ -204,6 +208,7 @@ export function useDataResource() {
 export function useResourceData<T>(id: string) {
     const { resources, setResource } = useDataResourcesStore();
     const resource = resources[id];
+    const { showBoundary } = useErrorBoundary();
 
     const config = resource?.config;
 
@@ -219,7 +224,8 @@ export function useResourceData<T>(id: string) {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body),
                 });
-                if (!res.ok) throw new Error("Create failed");
+                console.log(res)
+                if (!res.ok) throw await fetchResponseError(res, 'Create failed');
                 const retVal = await res.json();
                 const { data, result, error } = retVal as DatabaseAPI
                 setResource(id, {
@@ -230,6 +236,7 @@ export function useResourceData<T>(id: string) {
                     isMutating: false,
                 });
             } catch (e: any) {
+                showBoundary(e)
                 setResource(id, {
                     ...resource,
                     isMutating: false,
@@ -253,14 +260,15 @@ export function useResourceData<T>(id: string) {
             }
             if (!config) throw new Error("Resource does not exist");
             setResource(id, { ...resource, isMutating: true });
-            const body = { db: config.db, col: config.col, rows: [{ filter: { _id: item._id }, update: item }] }
+            const body = { db: 'config.db', col: config.col, rows: [{ filter: { _id: item._id }, update: item }] }
             try {
                 const res = await fetch(`${config.apiUrl}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(body),
                 });
-                if (!res.ok) throw new Error("Update failed");
+                console.log(res)
+                if (!res.ok) throw await fetchResponseError(res, 'Update failed');
                 const retVal = await res.json();
                 const { data, result, error } = retVal as DatabaseAPI
                 setResource(id, {
@@ -271,6 +279,7 @@ export function useResourceData<T>(id: string) {
                     isMutating: false,
                 });
             } catch (e: any) {
+                showBoundary(e)
                 setResource(id, {
                     ...resource,
                     isMutating: false,
@@ -291,7 +300,7 @@ export function useResourceData<T>(id: string) {
                 const res = await fetch(`${config.apiUrl}/${itemId}`, {
                     method: "DELETE",
                 });
-                if (!res.ok) throw new Error("Delete failed");
+                if (!res.ok) throw await fetchResponseError(res, 'Delete failed');
                 const retVal = await res.json();
                 const { data, result, error } = retVal as DatabaseAPI
                 setResource(id, {
@@ -302,6 +311,7 @@ export function useResourceData<T>(id: string) {
                     isMutating: false,
                 });
             } catch (e: any) {
+                showBoundary(e)
                 setResource(id, {
                     ...resource,
                     isMutating: false,
@@ -329,6 +339,7 @@ export function useResourceData<T>(id: string) {
                 });
             })
             .catch((e: any) => {
+                showBoundary(`Reload failed: ${e}`)
                 setResource(id, {
                     ...resource,
                     status: "error",
