@@ -1,12 +1,12 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/dates/styles.css';
+import classes from './styles/App.module.css'
 import { AppLayout } from './layouts';
 import PageManager from './components/app/PageManager';
 import { navStructure } from './layouts/navigation/NavStructure';
 import { useFetchSettings } from './stores';
 import { useEffect } from 'react';
-
 
 export function App() {
   const fetchSettings = useFetchSettings();
@@ -15,8 +15,9 @@ export function App() {
   }, [fetchSettings]);
   return (
     <AppLayout navStructure={navStructure}>
-      <PageManager />
-    </AppLayout>
+      <div className={classes.disabledInput}>
+        <PageManager />
+      </div>
+    </AppLayout >
   );
-
 }

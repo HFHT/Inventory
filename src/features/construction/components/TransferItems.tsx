@@ -4,6 +4,7 @@ import { useTransferItems } from "../hooks";
 import type { JSX } from "react";
 import { numberError } from "../../../utils";
 import { RowAmount, StatusIcon } from ".";
+import { ParcelSubdivisionSelect } from "../parcels";
 
 /**
  * Show a UI that allows transferring inventory items between locations,
@@ -47,29 +48,17 @@ export function TransferItems({ handleClose }: { handleClose?: () => void }): JS
                         onChange={setFromLocation}
                     />
                 </Grid.Col>
-                <Grid.Col span={3}>
-                    <Select
-                        label="To"
-                        title="To"
-                        value={selects.locationOfParcel}
-                        data={
-                            locations?.Locations
-                                .filter(l => !l.hide && l.id === undefined && l.Name !== selects.locationOfInventory)
-                                .map(l => l.Name)
-                        }
-                        onChange={setToLocation}
-                    />
-                </Grid.Col>
-                <Grid.Col span={3}>
-                    <Select
-                        label="Parcel"
-                        title="Parcel"
-                        value={selects.parcel}
-                        data={[
-                            "All",
-                            ...(parcelData?.filter(p => p.subdivision_id === selects.locationOfParcel).map(p => p.parcelLot) ?? []),
-                        ]}
-                        onChange={setToParcel}
+                <Grid.Col span={6}>
+                    <ParcelSubdivisionSelect
+                        locations={{
+                            from: selects.locationOfInventory,
+                            to: selects.locationOfParcel,
+                            parcel: selects.parcel,
+                            listOfLocations: locations
+                        }}
+                        parcelData={parcelData}
+                        setToLocation={setToLocation}
+                        setToParcel={setToParcel}
                     />
                 </Grid.Col>
                 <Grid.Col span={3}>
@@ -129,13 +118,19 @@ export function TransferItems({ handleClose }: { handleClose?: () => void }): JS
                                     .map(row => (
                                         <Table.Tr key={row._id} style={{ cursor: "pointer" }}>
                                             <Table.Td>{row.title}</Table.Td>
-                                            <Table.Td><RowAmount row={row} rowAmount={rowQuantity(row)} rowAdjust={rowSelections[row._id].amount} transferResults={transferResults}/></Table.Td>
+                                            <Table.Td><RowAmount row={row} rowAmount={rowQuantity(row)} rowAdjust={rowSelections[row._id].amount} transferResults={transferResults} /></Table.Td>
                                             <Table.Td>
                                                 <Select
                                                     value={rowSelections[row._id].parcel || null}
                                                     data={[
                                                         "All",
-                                                        ...(parcelData?.filter(p => p.subdivision_id === selects.locationOfParcel).map(p => p.parcelLot) ?? [])
+                                                        ...(
+                                                            parcelData
+                                                                ?.filter(p => p.subdivision_id === selects.locationOfParcel)
+                                                                .map(p => p.parcelLot)
+                                                                .filter((x): x is string => x != null) // filter out null or undefined
+                                                            ?? []
+                                                        )
                                                     ]}
                                                     onChange={val => handleParcelSelectChange(row._id, val)}
                                                 />

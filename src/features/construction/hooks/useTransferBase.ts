@@ -18,7 +18,7 @@ import { sumRequiredAndActualBySubdivision } from "../utils";
  * @property {string | null} locationOfParcel - The location to which inventory is transferred.
  * @property {string | null} parcel - The selected parcel ID.
  */
-type TransferSelects = {
+export type TransferSelects = {
     locationOfInventory: string | null;
     locationOfParcel: string | null;
     parcel: string | null;

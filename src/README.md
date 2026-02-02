@@ -17,6 +17,8 @@
 # Todo
 
 Implement Parcels -> Parcel Inventory
+-- In the Viewer, handle type of json and a details panel.
+-- In Ribbon switch between flat view and two level view.
 
 Transfer to subdivision - how to handle this? create an "All" parcel to contain it?
 --- Is there a subdivision infrastructure parcel, should it be like any other parcel except a name? Probably!
@@ -28,3 +30,7 @@ Return of pallet or item from parcel to inventory, this should be a return proce
 Enable dataResource interval timer
 
 Granular ErrorBoundary handling.
+
+ParcelEdit: 
+--- change models updates the Bill of Materials, 
+--- allow update to the Required and Actual 

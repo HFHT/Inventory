@@ -2,7 +2,7 @@ import classes from './styles/Ribbon.module.css'
 import { Container, Group } from "@mantine/core";
 import { type JSX } from "react";
 import { useTheme } from '../../hooks';
-import { Add, EmptySlot, Export, Filter, Grid, Import, Palletize, Refresh, RestockPallet, Transfer, UndoRedo, UnloadPallet } from './components';
+import { Add, EmptySlot, Export, Filter, Grid, Import, Palletize, Refresh, RestockPallet, StartParcel, Transfer, UndoRedo, UnloadPallet } from './components';
 import type { RibbonProps } from './types';
 import { InlineDialog } from '../display';
 
@@ -35,6 +35,14 @@ export function Ribbon({
             setMode(newTransferMode)
         }
     }
+    const handleToggleOverlay = (newTransferMode: any) => {
+        if (mode === newTransferMode) {
+            setMode(null)
+        } else {
+            setMode(newTransferMode)
+        }
+        handleToggleModal()
+    }
     // const handleClose = () => {
     //     checkbox?.handleToggleCheckboxes()
     //     clearSelectedRowIds()
@@ -48,6 +56,7 @@ export function Ribbon({
                     <Group gap={isSmallScreen ? 0 : 5} >
                         {/* {items} */}
                         {controls.add && <Add label='Add' emptyRow={emptyRow} openDrawer={openDrawer} />}
+                        {controls.start && <StartParcel label='Start Construction' onClick={() => handleToggleOverlay('startParcel')}  />}
                         {controls.transfer && <Transfer label='Transfer' onClick={() => handleTransferClick('transfer')} />}
                         {controls.pallet && <Palletize label='Palletize' onClick={() => handleTransferClick('palletize')} />}
                         {controls.restock && <RestockPallet label='Restock' onClick={() => handleTransferClick('restock')} />}

@@ -36,7 +36,7 @@ export function sortRows(
         ? aValue.getTime() - bValue.getTime()
         : bValue.getTime() - aValue.getTime();
     }
-    console.log(aValue,bValue)
+    console.log(aValue, bValue)
     return direction === "asc"
       ? String(aValue).localeCompare(String(bValue))
       : String(bValue).localeCompare(String(aValue));

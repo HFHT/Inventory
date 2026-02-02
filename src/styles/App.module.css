@@ -1,0 +1,18 @@
+
+/* globalOverrides.module.css */
+
+/* Light mode: lower opacity for disabled */
+[data-mantine-color-scheme="light"] input:disabled,
+[data-mantine-color-scheme="light"] select:disabled,
+[data-mantine-color-scheme="light"] textarea:disabled {
+  opacity: 0.7;
+  color: var(--mantine-color-text);
+}
+
+/* Dark mode: slightly higher opacity for readability */
+[data-mantine-color-scheme="dark"] input:disabled,
+[data-mantine-color-scheme="dark"] select:disabled,
+[data-mantine-color-scheme="dark"] textarea:disabled {
+  opacity: 0.7;
+  color: var(--mantine-color-text);
+}

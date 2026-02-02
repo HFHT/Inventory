@@ -1,4 +1,5 @@
 import type { BasePallet, BulkInventoryItem } from "./construction";
+import type { ParcelFlatBOM, ParcelInventoryType } from "./parcelInventory";
 
 /**
  * The main type that defines all inventory database types
@@ -13,5 +14,5 @@ import type { BasePallet, BulkInventoryItem } from "./construction";
  * In the future, this type will be expanded to include additional
  * database types relevant to the inventory application.
  */
-export type ViewerDbTypes = BulkInventoryItem[] | BasePallet[];
-export type ViewerDbRowTypes = BulkInventoryItem | BasePallet;
+export type ViewerDbTypes = (BulkInventoryItem | BasePallet | ParcelInventoryType | ParcelFlatBOM)[];
+export type ViewerDbRowTypes = BulkInventoryItem | BasePallet | ParcelInventoryType | ParcelFlatBOM;

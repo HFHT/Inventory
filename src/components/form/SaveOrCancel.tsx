@@ -9,7 +9,7 @@ interface SaveOrCancelProps {
 
 export function SaveOrCancel({ onSave, onCancel, disabled }: SaveOrCancelProps) {
   return (
-    <Group mt="md">
+    <Group mt="md" justify='center'>
       <Button disabled={disabled} onClick={onSave}>Save</Button>
       <Button variant="outline" color="red" onClick={onCancel}>Cancel</Button>
     </Group>

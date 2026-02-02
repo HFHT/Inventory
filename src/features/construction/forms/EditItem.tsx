@@ -16,7 +16,7 @@ interface BulkInventoryItemIsNewWithFlatArrays extends BulkInventoryItemIsNew {
 export function EditItem() {
   const height = useScrollAreaHeight(200);
 
-  const { create, update } = useResourceData<BulkInventoryItem[]>("inventory");
+  const { update } = useResourceData<BulkInventoryItem[]>("inventory");
 
   const { data: parcelInventory } = useResourceData<BulkInventoryItem[]>("parcelInventory");
   const { setIsEditing } = useEditing();
@@ -49,12 +49,7 @@ export function EditItem() {
 
   const saveForm = () => {
     console.log('save', form.getValues())
-    if (form.getValues().isNew) {
-      const { isNew, ...formValues } = reverseFlatArrays(form.getValues())
-      create(formValues)
-    } else {
-      update(reverseFlatArrays(form.getValues()))
-    }
+    update(reverseFlatArrays(form.getValues()))
     closeDrawer()
   }
 

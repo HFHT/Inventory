@@ -6,6 +6,8 @@ import type { TableColumnHeader } from '../components/table/types';
 import { Title } from '@mantine/core';
 import { EditItem, TransferItems, PalletizeItems } from '../features/construction';
 import { uniqueKey } from '../utils';
+import { LoadingSkeleton } from '../components/table/components';
+import { defaultInventoryItem } from '../features/construction/constants';
 
 export function Construction({ category }: { category: string }) {
   const { create } = useDataResource();
@@ -46,31 +48,6 @@ export function Construction({ category }: { category: string }) {
     { accessor: "_id", label: "ID", filterType: "equal" },
   ], [])
 
-  const emptyRow: BulkInventoryItemIsNew = {
-    _id: uniqueKey(),
-    barcodes: [],
-    pin: false,
-    select: {
-      category: category,
-      subCategory: ''
-    },
-    suppliers: [],
-    title: '',
-    images: {
-      favorite: null,
-      urls: []
-    },
-    warnLevels: {
-      notify: 0,
-      warn: 0
-    },
-    quantity: {
-      total: 0,
-      byLocation: [{ loc: 'Chuck', qty: 0 }]
-    },
-    isNew: true
-  }
-
   const filteredByCategoryData = useMemo(() => {
     if (!data) return []
     return data.filter(d => category === '' || d.select.category === category)
@@ -84,21 +61,26 @@ export function Construction({ category }: { category: string }) {
 
   }, [])
 
-  if (!data) return <></>
+  if (!data) return <LoadingSkeleton />
   console.log('Construction render')
 
   return (
     <>
       <Title order={2}>Construction Inventory</Title>
       <TableLayout
-        columns={columns}
-        rows={filteredByCategoryData}
-        emptyRow={emptyRow}
+        primaryRow={
+          {
+            columns: columns,
+            rows: filteredByCategoryData,
+            emptyRow: {
+              ...defaultInventoryItem, select: { ...defaultInventoryItem.select, category: category }
+            },
+            ribbonControls: { transfer: true, pallet: true },
+            drawerTitle: 'Edit Inventory Item',
+            modals: modals
+          }
+        }
         reload={reload}
-        ribbonControls={{ pallet: true }}
-        drawerTitle='Edit Inventory Item'
-        // modalTitle='Transfer Inventory Item(s)'
-        modals={modals}
       >
         <EditItem />
       </TableLayout>

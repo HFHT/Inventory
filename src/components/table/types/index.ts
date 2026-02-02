@@ -18,6 +18,7 @@ export type TableColumnHeader = {
     filterPrimary?: boolean;
     filterSecondary?: boolean;
     validate?: () => void;
+    details?: TableColumnHeader[]
 };
 
 // /**  
@@ -90,6 +91,7 @@ export interface RibbonProps {
 }
 export interface RibbonControls {
     add?: boolean;
+    start?: boolean;
     transfer?: boolean;
     pallet?: boolean;
     restock?: boolean;

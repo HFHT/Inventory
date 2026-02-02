@@ -217,7 +217,8 @@ export function useResourceData<T>(id: string) {
         async (item: any) => {
             if (!config) throw new Error("Resource does not exist");
             setResource(id, { ...resource, isMutating: true });
-            const body = { db: config.db, col: config.col, rows: [item] }
+            const { isNew, ...adjustedItem } = item
+            const body = { db: config.db, col: config.col, rows: [adjustedItem] }
             try {
                 const res = await fetch(config.apiUrl, {
                     method: "POST",
@@ -260,7 +261,8 @@ export function useResourceData<T>(id: string) {
             }
             if (!config) throw new Error("Resource does not exist");
             setResource(id, { ...resource, isMutating: true });
-            const body = { db: 'config.db', col: config.col, rows: [{ filter: { _id: item._id }, update: item }] }
+            const { isNew, ...adjustedItem } = item
+            const body = { db: config.db, col: config.col, rows: [{ filter: { _id: adjustedItem._id }, update: adjustedItem }] }
             try {
                 const res = await fetch(`${config.apiUrl}`, {
                     method: "PUT",

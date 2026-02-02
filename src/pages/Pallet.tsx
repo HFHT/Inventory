@@ -6,6 +6,7 @@ import type { TableColumnHeader } from '../components/table/types';
 import { Title } from '@mantine/core';
 import { EditPallet, TransferPallet } from '../features/construction';
 import { defaultPallet } from '../features/construction/constants';
+import { LoadingSkeleton } from '../components/table/components';
 
 export function Pallet() {
     const { create } = useDataResource();
@@ -36,7 +37,7 @@ export function Pallet() {
     }, [])
     const columns: TableColumnHeader[] = useMemo(() => [
         // { accessor: "image.favorite", label: '', type: 'image' },
-        { accessor: "title", label: "Title", filterType: "fuzzy" },
+        { accessor: "title", label: "Name", filterType: "fuzzy" },
         { accessor: "location", label: "Location", filterType: "includes" },
         { accessor: "dateCreated", label: "Date", filterType: "equal" },
         { accessor: "description", label: "Description", filterType: "fuzzy" },
@@ -54,21 +55,24 @@ export function Pallet() {
         ]
 
     }, [])
-    if (!data) return <></>
+    if (!data) return <LoadingSkeleton />
     console.log('Pallet render')
 
     return (
         <>
             <Title order={2}>Pallet Inventory</Title>
             <TableLayout
-                columns={columns}
-                rows={filteredByActive}
-                emptyRow={defaultPallet}
+                primaryRow={
+                    {
+                        columns: columns,
+                        rows: filteredByActive,
+                        emptyRow: defaultPallet,
+                        ribbonControls: { transfer: true, restock: true, unload: true },
+                        drawerTitle: 'Edit Pallet',
+                        modals: modals
+                    }
+                }
                 reload={reload}
-                ribbonControls={{ restock: true, unload: true }}
-                drawerTitle='Edit Pallet'
-                // modalTitle='Transfer Inventory Item(s)'
-                modals={modals}
             >
                 <EditPallet />
             </TableLayout >

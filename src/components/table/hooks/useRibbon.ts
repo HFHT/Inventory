@@ -1,3 +1,4 @@
+/** @deprecated not used. */
 import type { RibbonProps } from "../types";
 
 export function useRibbon(data: RibbonProps) {

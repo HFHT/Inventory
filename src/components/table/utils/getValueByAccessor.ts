@@ -15,6 +15,7 @@
  * getValueByAccessor(data, 'a.b[1].c'); // returns undefined
  */
 export function getValueByAccessor(obj: any, accessor: string): any {
+  // console.log(accessor, obj)
   if (!accessor) return obj;
   const parts = accessor.match(/([^[.\]]+)/g);
   if (!parts) return undefined;

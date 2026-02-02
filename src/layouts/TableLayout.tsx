@@ -3,8 +3,8 @@ import { Divider, Drawer } from '@mantine/core';
 import { PageControls, Filter, Viewer, Ribbon, Overlay } from '../components/table';
 import type { ViewerDbRowTypes, ViewerDbTypes } from '../types';
 import type { RibbonControls, TableColumnHeader } from '../components/table/types';
-import { useRibbon, useTable } from '../components/table/hooks';
-import { useEffect, useState, type JSX, type ReactNode } from 'react';
+import { useTable } from '../components/table/hooks';
+import { type JSX, type ReactNode } from 'react';
 import { DrawerLayout } from './DrawerLayout';
 import { useDrawerStore } from '../stores';
 import { DRAWER_SIZE, MARGIN_TOP } from '../constants/table';
@@ -20,20 +20,24 @@ import React from 'react';
  * @property {ReactNode} [children] - The React children to be rendered inside the drawer.
  */
 interface TableLayoutProps {
-  columns: TableColumnHeader[];
-  rows: ViewerDbTypes;
-  emptyRow: ViewerDbRowTypes;
+  primaryRow: {
+    columns: TableColumnHeader[],
+    rows: ViewerDbTypes,
+    emptyRow: ViewerDbRowTypes,
+    ribbonControls: RibbonControls,
+    drawerTitle: string,
+    modals: {
+      mode: string | null,
+      title: string,
+      label: string,
+      component: ReactNode | JSX.Element;
+    }[]
+  }
+  nestedRow?: {
+    columns: TableColumnHeader[]
+  } | undefined
   reload: () => void;
-  drawerTitle?: string;
-  ribbonControls?: RibbonControls;
-  // modalTitle?: string;
   children?: ReactNode;
-  modals?: {
-    mode: string | null,
-    title: string,
-    label: string,
-    component: ReactNode | JSX.Element;
-  }[]
 }
 
 /**
@@ -59,18 +63,14 @@ interface TableLayoutProps {
  * </TableLayout>
  */
 export function TableLayout({
-  columns,
-  rows,
-  emptyRow,
+  primaryRow,
+  nestedRow,
   reload,
-  drawerTitle,
-  ribbonControls,
-  // modalTitle,
   children,
-  modals,
 }: TableLayoutProps): JSX.Element {
   const { isDrawerOpen, openDrawer, closeDrawer } = useDrawerStore();
-
+  console.log(primaryRow)
+  const { columns, drawerTitle, emptyRow, modals, ribbonControls, rows, } = primaryRow
   /**
    * Custom table hook returns state and handlers for
    * filtering, sorting, pagination, and drawer open/close.
@@ -116,7 +116,7 @@ export function TableLayout({
     emptyRow: emptyRow,
     reload: reload,
     openDrawer: openDrawer,
-    controls: { add: true, transfer: true, refresh: true, export: true, import: true, filter: true, ...ribbonControls },
+    controls: { add: true, refresh: true, export: true, import: true, filter: true, ...ribbonControls },
     mode: table.control.mode,
     setMode: table.control.setMode,
     handleClose: table.control.handleClose,
@@ -141,28 +141,29 @@ export function TableLayout({
       <PageControls {...table} />
 
       {/* Drawer for showing details or forms */}
-      <Drawer.Root opened={isDrawerOpen} onClose={closeDrawer}
-        position='right' size={DRAWER_SIZE}
-        styles={{
-          content: { marginTop: MARGIN_TOP, border: '' },
-          overlay: { backgroundOpacity: 0.5, blur: 4, top: MARGIN_TOP }
-        }}
-      >
-        <Drawer.Overlay />
-        <Drawer.Content>
-          <Divider size='md' />
-          <Drawer.Header>
-            <Drawer.Title>{drawerTitle}</Drawer.Title>
-            <Drawer.CloseButton />
-          </Drawer.Header>
-          <Drawer.Body>
-            <DrawerLayout title={undefined} >
-              {children}
-            </DrawerLayout>
-          </Drawer.Body>
-        </Drawer.Content>
-      </Drawer.Root>
-
+      {children &&
+        <Drawer.Root opened={isDrawerOpen} onClose={closeDrawer}
+          position='right' size={DRAWER_SIZE}
+          styles={{
+            content: { marginTop: MARGIN_TOP, border: '' },
+            overlay: { backgroundOpacity: 0.5, blur: 4, top: MARGIN_TOP }
+          }}
+        >
+          <Drawer.Overlay />
+          <Drawer.Content>
+            <Divider size='md' />
+            <Drawer.Header>
+              <Drawer.Title>{drawerTitle}</Drawer.Title>
+              <Drawer.CloseButton />
+            </Drawer.Header>
+            <Drawer.Body>
+              <DrawerLayout title={undefined} >
+                {children}
+              </DrawerLayout>
+            </Drawer.Body>
+          </Drawer.Content>
+        </Drawer.Root>
+      }
       {/* Modal overlay controlled by the Ribbon mode */}
       <Overlay title={findModalTitle()} opened={opened} close={close} children={findModalChild()} />
     </>

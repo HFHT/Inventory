@@ -4,7 +4,7 @@ import {
     IconChevronDown,
     IconSelector,
 } from "@tabler/icons-react";
-import type { JSX } from "react";
+import { useMemo, type JSX } from "react";
 import type { TableCheckbox, TableColumnHeader } from "./types";
 import { getValueByAccessor } from "./utils";
 import type { ViewerDbRowTypes, ViewerDbTypes } from "../../types";
@@ -40,6 +40,10 @@ export interface TableViewProps {
  * @returns {JSX.Element} The rendered table markup.
  */
 export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick, checkbox, isRowSelected, selectedRowIds }: TableViewProps) {
+
+    const displayAbleColumns = useMemo(() => {
+        return columns.filter((c) => c.type !== 'json')
+    }, [columns])
     /**
      * Returns the appropriate sort icon for a given column.
      *
@@ -66,7 +70,7 @@ export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick, c
                 <MantineTable.Thead>
                     <MantineTable.Tr>
                         {checkbox.showCheckboxes && <MantineTable.Th><Checkbox checked={checkbox.allSelected} indeterminate={checkbox.indeterminate} onChange={() => checkbox.handleToggleAll()} variant='outline' /></MantineTable.Th>}
-                        {columns.map((col) => (
+                        {displayAbleColumns.map((col) => (
                             <MantineTable.Th key={col.accessor}>
                                 {col.sortable === false ? (
                                     // Non-sortable column
@@ -104,7 +108,7 @@ export function Viewer({ columns, pagedRows, sort, handleSort, handleRowClick, c
                                 style={{ cursor: "pointer" }}
                             >
                                 {checkbox.showCheckboxes && <MantineTable.Td><Checkbox variant='outline' checked={isRowSelected(row._id)} onChange={() => checkbox.handleToggleRow(row._id)} /></MantineTable.Td>}
-                                {columns.map((col) => (
+                                {displayAbleColumns.map((col) => (
                                     <MantineTable.Td key={col.accessor} onClick={() => handleRowClick(row)}>
                                         {getValueByAccessor(row, col.accessor)}
                                     </MantineTable.Td>

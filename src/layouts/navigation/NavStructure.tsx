@@ -1,4 +1,5 @@
-import { Actions, Construction, HomeBuyers, HomePage, Homes, OfficeMain, Pallet, UserSettings } from '../../pages'
+import { Actions, Construction, HomeBuyers, HomePage, Homes, OfficeMain, Pallet, Parcels, UserSettings } from '../../pages'
+import { TwoLevelTable } from '../../pages/TwoLevelTable';
 import type { NavItem } from '../../stores';
 
 /**
@@ -33,6 +34,41 @@ export const navStructure: NavItem[] = [
         key: 'Home'
     },
 
+    /**
+    * Actions section: scan, palletize, receipts, inventory.
+    */
+    {
+        label: 'Actions',
+        key: 'Actions',
+        children: [
+            {
+                label: 'Scan Item(s)',
+                page: <Actions category='Scan' />,
+                key: 'ScanInput'
+            },
+            {
+                label: 'Receipts',
+                page: <Actions category='Receipts' />,
+                key: 'Receipts'
+            },
+            {
+                label: 'Receive',
+                page: <></>,
+                key: 'Receive'
+            },
+            {
+                label: 'Perform Inventory',
+                page: <></>,
+                key: 'Inventory'
+            },
+            {
+                label: 'Scrap',
+                page: <></>,
+                key: 'Scrap'
+            },
+        ],
+    },
+    
     /**
      * Construction materials/categories section.
      */
@@ -119,36 +155,6 @@ export const navStructure: NavItem[] = [
         children: []
     },
 
-    /**
- * Actions section: scan, palletize, receipts, inventory.
- */
-    {
-        label: 'Actions',
-        key: 'Actions',
-        children: [
-            {
-                label: 'Scan Item(s)',
-                page: <Actions category='Scan' />,
-                key: 'ScanInput'
-            },
-            {
-                label: 'Palletize',
-                page: <></>,
-                key: 'Palletize'
-            },
-            {
-                label: 'Receipts',
-                page: <Actions category='Receipts' />,
-                key: 'Receipts'
-            },
-            {
-                label: 'Perform Inventory',
-                page: <></>,
-                key: 'Inventory'
-            },
-        ],
-    },
-
     /*
     // Example for future Home Models section:
     // {
@@ -170,12 +176,12 @@ export const navStructure: NavItem[] = [
         children: [
             {
                 label: 'Parcel Inventory',
-                page: <Homes category='Parcels' />,
+                page: <Parcels category='Parcels' />,
                 key: 'ParcelInventory'
             },
             {
                 label: 'List',
-                page: <Homes category='HomesTable' />,
+                page: <TwoLevelTable />,
                 key: 'HomesTable'
             },
             {

@@ -5,8 +5,6 @@ import type { ViewerDbRowTypes } from "../../../types";
 import { useSelectedRowStore } from "../../../stores";
 import { useTableSelectionStore } from "../stores/tableStore";
 
-
-
 /**
  * State and logic management for the Table component.
  * 

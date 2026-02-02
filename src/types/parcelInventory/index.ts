@@ -1,15 +1,23 @@
+import type { BaseInventoryImages } from "../construction"
+
 export type ParcelInventoryType = {
     _id: string | number
     active: boolean
     architecture: ArchitectureType
     billOfMaterial: BillOfMaterialType[]
     pallets: ParcelPallets[]
-    endDate: string
-    parcelLot: string
-    parcel_id: string
-    startDate: string
-    subdivision_id: string
+    endDate: string | null
+    parcelLot: string | null
+    parcel_id: string | null
+    startDate: string |null
+    subdivision_id: string | null
+    note: string | undefined
+    images: BaseInventoryImages
 }
+
+export type ParcelInventoryTypeIsNew = ParcelInventoryType & {
+    isNew: boolean;
+};
 
 export type ParcelPallets = {
     pallet_id: number | string
@@ -32,13 +40,13 @@ export type BillOfMaterials = {
     required: number | null
 }
 
-export type BillOfMaterialsWithActual = BillOfMaterials & {
+export type BillOfMaterialsWithActual = BillOfMaterialType & {
     actual: number;
 };
 export type ArchitectureType = {
-    model: string
-    variant: string
-    elevation: string
+    model: string | null
+    variant: string | null
+    elevation: string | null
 }
 export type Architecture = {
     model: string
@@ -73,6 +81,21 @@ export type Model = {
     billOfMaterials: BillOfMaterials[]
     active?: boolean
 }
+
+export type ParcelFlatBOM = BillOfMaterialType & {
+    _id: string | number;
+    subdivision_id: string | null;
+    parcelLot: string | null;
+    parcel_id: string | null;
+}
+
+
+
+
+
+
+
+
 export type HomesData = {
     parcels: Parcel[]
     parcelInventory: ParcelInventoryType[]

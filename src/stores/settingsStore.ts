@@ -24,7 +24,7 @@ type Location = {
     hide?: boolean;
     id?: string;
 }
-type Locations = { _id: string, Locations: Location[]};
+export type Locations = { _id: string, Locations: Location[]};
 type Prompt = { _id: string, text: string, /* ... */ };
 type Select = { _id: string, value: string, /* ... */ };
 
