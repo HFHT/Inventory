@@ -5,8 +5,8 @@ import { Divider, Grid, Image, ScrollArea, Stack, Table, Text, Textarea, TextInp
 import { DateInput } from "@mantine/dates";
 import { ImageCarousel } from "../../../components/carousel";
 import { useScrollAreaHeight } from "../../../hooks";
-import type { ParcelInventoryType } from "../../../types/parcelInventory";
-import { ParcelSubdivisionSelect } from "../parcels";
+import { ParcelSubdivisionSelect } from "../../parcels";
+import type { ParcelInventoryType } from "../../../types/parcels";
 
 export function EditParcelInventory() {
     const height = useScrollAreaHeight(480);

@@ -1,11 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { TableLayout } from '../layouts/TableLayout';
 import { useDataResource, useResourceData } from '../stores/dataResourceStore';
-import type { BulkInventoryItem, BulkInventoryItemIsNew } from '../types/construction';
+import type { BulkInventoryItem } from '../types/construction';
 import type { TableColumnHeader } from '../components/table/types';
 import { Title } from '@mantine/core';
 import { EditItem, TransferItems, PalletizeItems } from '../features/construction';
-import { uniqueKey } from '../utils';
 import { LoadingSkeleton } from '../components/table/components';
 import { defaultInventoryItem } from '../features/construction/constants';
 

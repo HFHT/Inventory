@@ -4,9 +4,9 @@ import { Divider, Grid, Image, ScrollArea, Text, Textarea, TextInput } from '@ma
 import { addFlatArrays, DependentNumberInputs, DependentSelect, imageActions, imageObj, QuantityGrid, reverseFlatArrays, SaveOrCancel } from '../../../components/form';
 import { ImageCarousel } from '../../../components/carousel';
 import { useCategories, useDrawerStore, useEditing, useResourceData, useSelectedRowStore } from '../../../stores';
-import { ParcelInventory } from '../parcels/components';
 import { useEffect, useMemo } from 'react';
 import { useScrollAreaHeight } from '../../../hooks';
+import { ParcelInventory } from '../../parcels';
 
 interface BulkInventoryItemIsNewWithFlatArrays extends BulkInventoryItemIsNew {
   $barcodes: string,

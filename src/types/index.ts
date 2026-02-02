@@ -1,5 +1,5 @@
 import type { BasePallet, BulkInventoryItem } from "./construction";
-import type { ParcelFlatBOM, ParcelInventoryType } from "./parcelInventory";
+import type { ParcelFlatBOM, ParcelInventoryType } from "./parcels";
 
 /**
  * The main type that defines all inventory database types

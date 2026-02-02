@@ -1,15 +1,14 @@
 import { useEffect, useMemo } from "react";
 import { useDataResource, useResourceData } from "../stores";
-import type { ParcelInventoryType, ParcelInventoryTypeIsNew } from "../types/parcelInventory";
 import type { TableColumnHeader } from "../components/table/types";
-import { uniqueKey } from "../utils";
 import { Title } from "@mantine/core";
 import { TableLayout } from "../layouts";
 import { flattenParcelBOM } from "../features/construction/utils";
-import { EditParcelInventory, TransferItems } from "../features/construction";
+import { EditParcelInventory } from "../features/construction";
 import { LoadingSkeleton } from "../components/table/components";
-import { defaultParcelInventory } from "../features/construction/constants";
-import { StartConstruction } from "../features/construction/parcels";
+import { StartConstruction } from "../features/parcels";
+import { defaultParcelInventory } from "../features/parcels/constants";
+import type { ParcelInventoryType } from "../types/parcels";
 
 export function Parcels({ category }: { category: 'Parcels' }) {
     const { create } = useDataResource();

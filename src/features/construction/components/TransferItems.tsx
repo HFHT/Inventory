@@ -4,7 +4,7 @@ import { useTransferItems } from "../hooks";
 import type { JSX } from "react";
 import { numberError } from "../../../utils";
 import { RowAmount, StatusIcon } from ".";
-import { ParcelSubdivisionSelect } from "../parcels";
+import { ParcelSubdivisionSelect } from "../../parcels";
 
 /**
  * Show a UI that allows transferring inventory items between locations,
