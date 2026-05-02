@@ -4,7 +4,7 @@ import { useDataResource, useResourceData } from '../stores/dataResourceStore';
 import type { BasePallet, BulkInventoryItem } from '../types/construction';
 import type { TableColumnHeader } from '../components/table/types';
 import { Title } from '@mantine/core';
-import { EditPallet, TransferPallet } from '../features/construction';
+import { EditPallet, RestockPallet, TransferPallet } from '../features/construction';
 import { defaultPallet } from '../features/construction/constants';
 import { LoadingSkeleton } from '../components/table/components';
 
@@ -39,6 +39,7 @@ export function Pallet() {
         // { accessor: "image.favorite", label: '', type: 'image' },
         { accessor: "title", label: "Name", filterType: "fuzzy" },
         { accessor: "location", label: "Location", filterType: "includes" },
+        { accessor: "lot", label: "Lot", filterType: "includes" },
         { accessor: "dateCreated", label: "Date", filterType: "equal" },
         { accessor: "description", label: "Description", filterType: "fuzzy" },
         { accessor: "_id", label: "ID", filterType: "equal" },
@@ -50,7 +51,7 @@ export function Pallet() {
     const modals = useMemo(() => {
         return [
             { mode: 'transfer', title: 'Transfer Inventory Item(s)', label: 'Transfer', component: <TransferPallet /> },
-            { mode: 'restock', title: 'Restock Pallet Contents', label: 'Restock', component: <></> },
+            { mode: 'restock', title: 'Restock Pallet Contents', label: 'Restock', component: <RestockPallet /> },
             { mode: 'unload', title: 'Unload Pallet Contents', label: 'Unload', component: <></> },
         ]
 

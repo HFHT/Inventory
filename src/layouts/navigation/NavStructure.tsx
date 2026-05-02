@@ -1,4 +1,6 @@
-import { Actions, Construction, HomeBuyers, HomePage, Homes, OfficeMain, Pallet, Parcels, UserSettings } from '../../pages'
+import { VimeoGatedPlayer } from '../../components/display';
+import { Actions, Construction, HomeBuyers, HomePage, Homes, OfficeMain, Pallet, Parcels, Receipts, UserSettings } from '../../pages'
+import { TempTransformParcels } from '../../pages/TempTransformParcels';
 import { TwoLevelTable } from '../../pages/TwoLevelTable';
 import type { NavItem } from '../../stores';
 
@@ -42,33 +44,49 @@ export const navStructure: NavItem[] = [
         key: 'Actions',
         children: [
             {
-                label: 'Scan Item(s)',
-                page: <Actions category='Scan' />,
-                key: 'ScanInput'
+                label: 'Video',
+                // page: <VimeoGatedPlayer videoId={'1166414018/f02805b0d6'} />,
+                page: <VimeoGatedPlayer debug={true}/>,
+                key: 'Video'
             },
             {
-                label: 'Receipts',
-                page: <Actions category='Receipts' />,
-                key: 'Receipts'
+                label: 'Search',
+                page: <Actions category='Search' />,
+                key: 'Search'
+            },
+            {
+                label: 'Transfer',
+                page: <Actions category='Transfer' />,
+                key: 'Transfer'
             },
             {
                 label: 'Receive',
-                page: <></>,
+                page: <Actions category='Receive' />,
                 key: 'Receive'
             },
             {
-                label: 'Perform Inventory',
-                page: <></>,
-                key: 'Inventory'
+                label: 'Scrap',
+                page: <Actions category='Scrap' />,
+                key: 'Scrap'
             },
             {
-                label: 'Scrap',
-                page: <></>,
-                key: 'Scrap'
+                label: 'Receipts',
+                page: <Receipts />,
+                key: 'Receipts'
+            },
+            {
+                label: 'Returns',
+                page: <Receipts />,
+                key: 'Returns'
+            },
+            {
+                label: 'Perform Inventory',
+                page: <Actions category='Inventory' />,
+                key: 'Inventory'
             },
         ],
     },
-    
+
     /**
      * Construction materials/categories section.
      */
@@ -181,7 +199,12 @@ export const navStructure: NavItem[] = [
             },
             {
                 label: 'List',
-                page: <TwoLevelTable />,
+                page: <Parcels category='List' />,
+                key: 'ParcelList'
+            },
+            {
+                label: 'Import',
+                page: <TempTransformParcels />,
                 key: 'HomesTable'
             },
             {

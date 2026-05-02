@@ -15,7 +15,7 @@ type Category = {
     toolMenuItems: CategoryMenuItems[];
     constructionMenuItems: CategoryMenuItems[];
 };
-type Location = {
+export type Location = {
     Name: string;
     lat: number;
     lon: number;

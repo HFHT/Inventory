@@ -9,6 +9,7 @@ export type ParcelInventoryType = {
     endDate: string | null
     parcelLot: string | null
     parcel_id: string | null
+    street: string | null
     startDate: string |null
     subdivision_id: string | null
     note: string | undefined
@@ -88,18 +89,3 @@ export type ParcelFlatBOM = BillOfMaterialType & {
     parcelLot: string | null;
     parcel_id: string | null;
 }
-
-
-
-
-
-
-
-
-// export type HomesData = {
-//     parcels: Parcel[]
-//     parcelInventory: ParcelInventoryType[]
-//     models: Model[]
-//     subdivisions: Subdivision[]
-//     schema: unknown
-// }

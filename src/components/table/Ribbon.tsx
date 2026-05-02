@@ -5,6 +5,7 @@ import { useTheme } from '../../hooks';
 import { Add, EmptySlot, Export, Filter, Grid, Import, Palletize, Refresh, RestockPallet, StartParcel, Transfer, UndoRedo, UnloadPallet } from './components';
 import type { RibbonProps } from './types';
 import { InlineDialog } from '../display';
+import { IconAdjustmentsExclamation } from '@tabler/icons-react';
 
 export function Ribbon({
     pagedRows,
@@ -15,6 +16,7 @@ export function Ribbon({
     openDrawer,
     mode,
     setMode,
+    setFilterValue,
     handleClose,
     handleToggleModal,
     modalButtonLabel
@@ -26,11 +28,14 @@ export function Ribbon({
     }
     const handleTransferClick = (newTransferMode: any) => {
         console.log(mode, newTransferMode)
+        setFilterValue(newTransferMode === 'restock' ? 'Chuck' : '')
         if (mode === newTransferMode || mode === null) {
             checkbox?.handleToggleCheckboxes()
         }
+        /** Close the overlay if the same selection is made. */
         if (mode === newTransferMode) {
             setMode(null)
+            setFilterValue('')
         } else {
             setMode(newTransferMode)
         }
@@ -56,7 +61,8 @@ export function Ribbon({
                     <Group gap={isSmallScreen ? 0 : 5} >
                         {/* {items} */}
                         {controls.add && <Add label='Add' emptyRow={emptyRow} openDrawer={openDrawer} />}
-                        {controls.start && <StartParcel label='Start Construction' onClick={() => handleToggleOverlay('startParcel')}  />}
+                        {controls.start && <StartParcel label='Start Construction' onClick={() => handleTransferClick('startParcel')} />}
+                        {controls.deviations && <><IconAdjustmentsExclamation /><div>Differences</div></>}
                         {controls.transfer && <Transfer label='Transfer' onClick={() => handleTransferClick('transfer')} />}
                         {controls.pallet && <Palletize label='Palletize' onClick={() => handleTransferClick('palletize')} />}
                         {controls.restock && <RestockPallet label='Restock' onClick={() => handleTransferClick('restock')} />}

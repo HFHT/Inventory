@@ -1,7 +1,7 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 import { MongoClient, ClientSession, MongoError } from "mongodb";
 import { allStrings, errorResponse, hasTransferSelectsProps } from "../utils";
-import { BillOfMaterial, Inventory, InventoryDbType, InventoryLocation, ParcelInventoryType } from "../types";
+import { BasePallet, BillOfMaterial, Inventory, InventoryDbType, InventoryLocation, ParcelInventoryType } from "../types";
 
 /**
  * @typedef {Object} TransferSelects
@@ -95,22 +95,158 @@ export async function transferItems(
             return errorResponse(400, "No items provided for transfer.");
         }
 
-        if (controls.type === 'pallet') {
-            return errorResponse(400, "Pallet transfer not implemented.");
-        }
-
+        // if (controls.type === 'pallet') {
+        //     return errorResponse(400, "Pallet transfer not implemented.");
+        // }
         /**
-         * pallet processing, for each pallet 
-         * update Pallets collection dateShipped and location
-         * update the ParcelInventory collection pallets array
-         * - add to parcel 
-         * - handle the case where it moves from one parcel to another (remove and add)
-         * - handle the case where it is returned to a warehouse (remove from parcel)
-         */
+        * pallet processing, for each pallet 
+        * update Pallets collection dateShipped and location
+        * update the ParcelInventory collection pallets array
+        * - add to parcel 
+        * - handle the case where it moves from one parcel to another (remove and add)
+        * - handle the case where it is returned to a warehouse (remove from parcel)
+        */
+        /** Inserted pallet code here. */
+        if (controls.type === 'pallet') {
+            // 1. Validate body
+            if (!items || typeof items !== "object" || Object.keys(items).length === 0) {
+                return errorResponse(400, "No pallet items provided for transfer.");
+            }
+            // 2. Connect
+            client = new MongoClient(process.env.ATLAS_URI);
+            await client.connect();
 
+            // 3. Collections needed
+            const palletCol = client.db("Construction").collection<BasePallet>("Pallets");
+            const parcelCol = client.db("Homes").collection<ParcelInventoryType>("ParcelInventory");
 
+            /** @type {any[]} */
+            const results: any[] = [];
 
+            for (const [rowId, rowSelection] of Object.entries(items)) {
+                let intPalletId = isNaN(Number(rowId)) ? rowId : Number(rowId);
 
+                try {
+                    // Find the pallet
+                    const pallet = await palletCol.findOne({ _id: intPalletId });
+                    if (!pallet) {
+                        results.push({ rowId, status: "skipped", reason: "Pallet not found" });
+                        continue;
+                    }
+
+                    const prevLoc = pallet.location;
+                    const destLoc = controls.locationOfParcel;
+
+                    // If destination is a warehouse (warehouse transfer)
+                    const locationsCol = client.db("Settings").collection<InventoryDbType>("_Locations");
+                    const _locations = await locationsCol.findOne();
+                    const locationObj = _locations?.Locations?.find((l: InventoryLocation) => l.Name === destLoc);
+
+                    // Will be true if destination is a warehouse
+                    const goingToWarehouse = !!locationObj?.warehouse;
+
+                    // ---- Start Session for transfer actions ----
+                    const session = client.startSession();
+                    let transferResult: any = { rowId };
+                    try {
+                        await session.withTransaction(async () => {
+                            // 1. Update Pallet main properties
+                            const nowIso = new Date().toISOString();
+                            const updatePalletFields: Partial<BasePallet> = {
+                                dateShipped: nowIso,
+                                location: destLoc,
+                            };
+                            // Remove unloaded date if sending to warehouse, set if arriving @ parcel
+                            // if (goingToWarehouse) {
+                            //     updatePalletFields.dateUnloaded = "";
+                            // } else {
+                            //     updatePalletFields.dateUnloaded = nowIso;
+                            // }
+                            await palletCol.updateOne(
+                                { _id: intPalletId },
+                                { $set: updatePalletFields },
+                                { session }
+                            );
+                            transferResult.updatedPallet = true;
+
+                            if (!goingToWarehouse) {
+                                // Destination is Parcel: Add reference _id to ParcelInventory.pallets array if not present
+                                const dstParcel = await parcelCol.findOne({
+                                    subdivision_id: destLoc,
+                                    parcelLot: rowSelection.parcel,
+                                }, { session });
+                                if (!dstParcel) {
+                                    throw new Error(`Destination parcel does not exist`);
+                                }
+
+                                // $addToSet = only add if not present
+                                await parcelCol.updateOne(
+                                    { _id: dstParcel._id },
+                                    { $addToSet: { pallets: intPalletId } },
+                                    { session }
+                                );
+                                transferResult.addedToParcel = true;
+                            }
+
+                            // Handle source: If source was a parcel, remove from source parcel's .pallets array
+                            if (prevLoc !== destLoc) {
+                                const prevParcel = await parcelCol.findOne({
+                                    subdivision_id: prevLoc,
+                                    "pallets": intPalletId
+                                }, { session });
+                                if (prevParcel) {
+                                    await parcelCol.updateOne(
+                                        { _id: prevParcel._id },
+                                        { $pull: { pallets: intPalletId } },
+                                        { session }
+                                    );
+                                    transferResult.removedFromSourceParcel = true;
+                                }
+                            }
+
+                            // If returning to warehouse from parcel (or moving out of any parcel), remove pallet from ALL parcels where it may have existed
+                            if (goingToWarehouse) {
+                                // Defensive: Just remove from any stale parcels
+                                await parcelCol.updateMany(
+                                    { pallets: intPalletId },
+                                    { $pull: { pallets: intPalletId } },
+                                    { session }
+                                );
+                                transferResult.cleanedAllParcels = true;
+                            }
+                        });
+
+                        results.push({
+                            rowId,
+                            status: "pallet-transfer-complete",
+                            ...transferResult,
+                        });
+                    } catch (error) {
+                        results.push({
+                            rowId,
+                            status: "error",
+                            error: error instanceof Error ? error.message : error,
+                        });
+                    } finally {
+                        await session.endSession();
+                    }
+                } catch (error) {
+                    results.push({
+                        rowId,
+                        status: "error",
+                        error: error instanceof Error ? error.message : error,
+                    });
+                }
+            }
+
+            // Return up-to-date pallet data (if that is desired, you can adapt this)
+            const data = await palletCol.find().toArray();
+            return {
+                status: 200,
+                body: JSON.stringify({ data, result: results }),
+            };
+        }
+        /** end of pallet code insert. */
 
         client = new MongoClient(process.env.ATLAS_URI);
         await client.connect();

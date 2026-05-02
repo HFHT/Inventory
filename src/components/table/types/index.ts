@@ -84,6 +84,7 @@ export interface RibbonProps {
     openDrawer: () => void;
     mode: string | null;
     setMode: (m: string | null) => void;
+    setFilterValue: (v: string) => void;
     handleClose: () => void;
     handleToggleModal: () => void;
     clearSelectedRowIds: () => void;
@@ -102,4 +103,5 @@ export interface RibbonControls {
     export?: boolean;
     import?: boolean;
     filter?: boolean;
+    deviations?: boolean
 }

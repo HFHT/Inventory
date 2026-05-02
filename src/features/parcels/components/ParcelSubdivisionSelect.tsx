@@ -1,6 +1,6 @@
 import { Autocomplete, Select, SimpleGrid } from "@mantine/core";
-import type { Locations } from "../../../../stores";
-import type { ParcelInventoryType } from "../../../../types/parcelInventory";
+import type { Locations } from "../../../stores";
+import type { ParcelInventoryType } from "../../../types/parcels";
 
 interface ParcelSubdivisionSelectProps {
     locations: {
@@ -13,9 +13,15 @@ interface ParcelSubdivisionSelectProps {
     setToLocation: (v: string | null) => void
     setToParcel: (v: string | null) => void
     allowUpdate?: boolean
+    ignoreFrom?: boolean
 }
 
-export function ParcelSubdivisionSelect({ locations, parcelData, setToLocation, setToParcel, allowUpdate = false }: ParcelSubdivisionSelectProps) {
+export function ParcelSubdivisionSelect({ locations, parcelData, setToLocation, setToParcel, allowUpdate = false, ignoreFrom = false }: ParcelSubdivisionSelectProps) {
+    console.log(locations)
+    const ignoreTheFromLocation = (locationName: string) => {
+        if (ignoreFrom) return true
+        return (locationName !== locations.from)
+    }
     return (
         <SimpleGrid cols={2}>
             <Select
@@ -24,14 +30,14 @@ export function ParcelSubdivisionSelect({ locations, parcelData, setToLocation, 
                 value={locations.to}
                 data={
                     locations.listOfLocations?.Locations
-                        .filter(l => !l.hide && l.id === undefined && l.Name !== locations.from)
+                        .filter(l => !l.hide && l.id === undefined && ignoreTheFromLocation(l.Name))
                         .map(l => l.Name)
                 }
                 onChange={setToLocation}
             />
             {allowUpdate ?
                 <Autocomplete
-                    label="Parcel"
+                    label="Lot"
                     value={locations.parcel ? locations.parcel : ''}
                     data={[
                         "All",

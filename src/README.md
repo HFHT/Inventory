@@ -34,3 +34,9 @@ Granular ErrorBoundary handling.
 ParcelEdit: 
 --- change models updates the Bill of Materials, 
 --- allow update to the Required and Actual 
+
+
+Parcel Inventory:
+For each bill of material item, have an ordered, received, and an array of receipts on which they were ordered.
+
+Pallet Inventory: update the transfer to add the lot to the ParcelInventory database.

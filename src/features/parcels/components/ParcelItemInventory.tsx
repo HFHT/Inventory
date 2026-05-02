@@ -6,7 +6,7 @@ interface ParcelInventoryProps {
   inventory_id: string | number
 }
 
-export function ParcelInventory({ inventory_id }: ParcelInventoryProps) {
+export function ParcelItemInventory({ inventory_id }: ParcelInventoryProps) {
   const { data } = useResourceData('parcelInventory')
   const parcels = data as unknown as ParcelInventoryType[] | undefined
   const activeParcels = parcels?.filter(p => p.active === true)
@@ -25,7 +25,7 @@ export function ParcelInventory({ inventory_id }: ParcelInventoryProps) {
       <Table highlightOnHover>
         <Table.Thead>
           <Table.Tr>
-            <Table.Th>Parcel</Table.Th>
+            <Table.Th>Lot</Table.Th>
             <Table.Th>Current</Table.Th>
             <Table.Th>Desired</Table.Th>
             <Table.Th>Difference</Table.Th>

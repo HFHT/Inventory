@@ -138,6 +138,7 @@ export function useTable(data: TableData) {
     const handleClose = () => {
         handleToggleCheckboxes()
         clearSelectedRowIds()
+        setFilterValue('')
         setMode(null)
     }
 

@@ -5,6 +5,7 @@ import type { JSX } from "react";
 import { numberError } from "../../../utils";
 import { RowAmount, StatusIcon } from ".";
 import { ParcelSubdivisionSelect } from "../../parcels";
+import type { BulkInventoryItem } from "../../../types/construction";
 
 /**
  * Show a UI that allows transferring inventory items between locations,
@@ -35,7 +36,7 @@ export function TransferItems({ handleClose }: { handleClose?: () => void }): JS
     } = useTransferItems({ db: 'Inventory', type: 'inventory' });
 
     console.log(rowSelections)
-
+    const theTransferList = transferList as BulkInventoryItem[]
     return (
         <>
             <Grid mb="0" pb="0">
@@ -106,14 +107,14 @@ export function TransferItems({ handleClose }: { handleClose?: () => void }): JS
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
-                            {transferList.length === 0 ? (
+                            {theTransferList.length === 0 ? (
                                 <Table.Tr>
                                     <Table.Td colSpan={5} style={{ textAlign: "center" }}>
                                         No data
                                     </Table.Td>
                                 </Table.Tr>
                             ) : (
-                                transferList
+                                theTransferList
                                     .filter(row => row !== undefined)
                                     .map(row => (
                                         <Table.Tr key={row._id} style={{ cursor: "pointer" }}>

@@ -119,6 +119,7 @@ export function TableLayout({
     controls: { add: true, refresh: true, export: true, import: true, filter: true, ...ribbonControls },
     mode: table.control.mode,
     setMode: table.control.setMode,
+    setFilterValue: table.setFilterValue,
     handleClose: table.control.handleClose,
     handleToggleModal: toggle,
     modalButtonLabel: findModalLabel()

@@ -1,4 +1,4 @@
-import type { ParcelInventoryTypeIsNew } from "../../../types/parcels";
+import type { Parcel, ParcelInventoryTypeIsNew } from "../../../types/parcels";
 import { uniqueKey } from "../../../utils";
 
 export const defaultParcelInventory: ParcelInventoryTypeIsNew = {
@@ -14,6 +14,7 @@ export const defaultParcelInventory: ParcelInventoryTypeIsNew = {
   endDate: null,
   parcelLot: null,
   parcel_id: null,
+  street: null,
   startDate: null,
   subdivision_id: null,
   note: undefined,
@@ -22,4 +23,39 @@ export const defaultParcelInventory: ParcelInventoryTypeIsNew = {
     urls: []
   },
   isNew: true
+}
+
+export const defaultParcel: Parcel = {
+  _id: undefined,
+  homes: [{
+    street: '',
+    build: {
+      lotName: '',
+      startDate: '',
+      endDate: '',
+      status: '',
+      fundingSources: [],
+      model: '',
+      variant: '',
+      resrictions: ''
+    },
+    history: [],
+  }],
+  history: [{
+    acquired: '',
+    sold: '',
+    recorderSequenceNo: null
+  }],
+  location: {
+    lat: 0,
+    lng: 0,
+    geoAddress: '',
+    lotNumber: '',
+    subdivision_id: '',
+    ward: '',
+    city: 'Tucson',
+    state: 'Az'
+  },
+  notes: [],
+  type: 'Inventory'
 }

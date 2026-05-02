@@ -10,6 +10,7 @@ export interface BasePallet {
     dateShipped: string;
     dateUnloaded: string;
     location: string;
+    lot: string;
     contents: PalletContents[];
     archived: boolean;
     images: PalletImages;
@@ -34,5 +35,7 @@ export interface PalletContents {
     /** The title of this item. */
     title: string;
     /** The quantify of this item placed on the pallet. */
-    amount: number
+    amount: number;
+    /** The quantify of this item to remove from the pallet. */
+    restockAmount?: number | undefined;
 }

@@ -1,4 +1,4 @@
-import type { BillOfMaterialType, ParcelFlatBOM, ParcelInventoryType } from "../../../types/parcelInventory";
+import type { ParcelFlatBOM, ParcelInventoryType } from "../../../types/parcels";
 
 /**
  * Flattens the billOfMaterial array for all parcels,

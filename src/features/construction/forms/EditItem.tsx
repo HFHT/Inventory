@@ -6,7 +6,7 @@ import { ImageCarousel } from '../../../components/carousel';
 import { useCategories, useDrawerStore, useEditing, useResourceData, useSelectedRowStore } from '../../../stores';
 import { useEffect, useMemo } from 'react';
 import { useScrollAreaHeight } from '../../../hooks';
-import { ParcelInventory } from '../../parcels';
+import { ParcelItemInventory } from '../../parcels';
 
 interface BulkInventoryItemIsNewWithFlatArrays extends BulkInventoryItemIsNew {
   $barcodes: string,
@@ -109,7 +109,7 @@ export function EditItem() {
         <Textarea size='sm' placeholder='description....' autosize minRows={1} label='Description'
           key={(form.key('description'))}
           {...form.getInputProps('description')} />
-        <ParcelInventory inventory_id={form.getValues()._id} />
+        <ParcelItemInventory inventory_id={form.getValues()._id} />
         <Divider mt={10} mb={6} size='sm' labelPosition='left'
           label={<Text size='sm'>Images</Text>}
         />

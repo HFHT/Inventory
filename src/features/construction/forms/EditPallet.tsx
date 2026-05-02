@@ -45,11 +45,14 @@ export function EditPallet() {
         <Grid.Col span={1}>
           <Image src={imageObj(form).favorite} h={60} w='auto' fit='contain' fallbackSrc='https://hfhtdev.blob.core.windows.net/production/brokenImage.jpg' />
         </Grid.Col>
-        <Grid.Col span={5}>
+        <Grid.Col span={4}>
           <TextInput label='Short Name' placeholder='(max 15 characters)' size='sm' withAsterisk key={(form.key('title'))} {...form.getInputProps('title')} />
         </Grid.Col>
-        <Grid.Col span={3}>
+        <Grid.Col span={2}>
           <Select label='Location' value={form.getValues().location} data={[form.getValues().location]} />
+        </Grid.Col>
+        <Grid.Col span={2}>
+          <Select label='Lot' value={form.getValues().lot} data={[form.getValues().lot]} />
         </Grid.Col>
         <Grid.Col span={3}>
           <SaveOrCancel

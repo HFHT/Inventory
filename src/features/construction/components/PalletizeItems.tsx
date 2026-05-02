@@ -37,6 +37,7 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
     duplicatePalletName,
     favoriteImage
   } = usePalletizeItems({ db: 'Inventory', type: 'inventory' });
+  const theTransferList = transferList as BulkInventoryItem[]
 
   const ControlButton = () => {
     if (!havePalletInfo) {
@@ -149,19 +150,19 @@ export function PalletizeItems({ handleClose }: { handleClose?: () => void }) {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {transferList.length === 0 ? (
+                {theTransferList.length === 0 ? (
                   <Table.Tr>
                     <Table.Td colSpan={5} style={{ textAlign: "center" }}>
                       No data
                     </Table.Td>
                   </Table.Tr>
                 ) : (
-                  transferList
+                  theTransferList
                     .filter(row => row !== undefined)
                     .map(row => (
                       <Table.Tr key={row._id} style={{ cursor: "pointer" }}>
                         <Table.Td>{row.title}</Table.Td>
-                        <Table.Td><RowAmount row={row} rowAmount={rowQuantity(row)} rowAdjust={rowSelections[row._id].amount} transferResults={transferResults}/></Table.Td>
+                        <Table.Td><RowAmount row={row} rowAmount={rowQuantity(row)} rowAdjust={rowSelections[row._id].amount} transferResults={transferResults} /></Table.Td>
                         <Table.Td>
                           <Select
                             value={rowSelections[row._id].SKU || null}

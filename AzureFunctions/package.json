@@ -11,6 +11,7 @@
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@azure/functions": "^4.0.0",
     "@azure/storage-blob": "^12.29.1",
     "mongodb": "^7.0.0"

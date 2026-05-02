@@ -1,6 +1,6 @@
 
-export function Actions({ category }: { category: 'Receipts' | 'Scan' }) {
+export function Actions({ category }: { category: 'Receipts' | 'Search' | 'Transfer' | 'Receive' | 'Scrap' | 'Inventory' }) {
     return (
-        <div>Actions</div>
+        <div>Actions {category}</div>
     )
 }
